@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "509306529919",
+    "project_id": "chat-app-642ec",
+    "storage_bucket": "chat-app-642ec.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:509306529919:android:3a009d0bf0c80c63e2b74a",
+        "android_client_info": {
+          "package_name": "com.punam.chat_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "509306529919-ib92jelgto8u11hu725f74d9g0j569ci.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.punam.chat_app",
+            "certificate_hash": "08232d5df5d4768d5102a6fc5f45aefc9dedaa03"
+          }
+        },
+        {
+          "client_id": "509306529919-vmjob8qq4hkamd4c45rkcl30ar7u5eh8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUM2z9hyKsc5PF8Gs0WQ_Bp5mPCnQ3YKY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "509306529919-vmjob8qq4hkamd4c45rkcl30ar7u5eh8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
