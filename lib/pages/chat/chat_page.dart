@@ -11,9 +11,9 @@ import 'package:chat_app/models/user.dart';
 import 'package:chat_app/services/auth.dart';
 import 'package:chat_app/services/database.dart';
 import 'package:chat_app/utils/get_chat_id.dart';
+import 'package:chat_app/utils/get_color.dart';
 import 'package:chat_app/utils/kind_of_file.dart';
 import 'package:chat_app/utils/time_format.dart';
-import 'package:chewie/chewie.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -21,7 +21,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';
-
 import 'package:provider/provider.dart';
 
 class ChatPage extends StatefulWidget {
@@ -138,6 +137,7 @@ class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     _buildContentOfMessage(Message message) {
+      bool isMe = message.sendBy == currentUser!.uid;
       switch (message.type) {
         case messageType:
           return Column(
@@ -148,6 +148,9 @@ class _ChatPageState extends State<ChatPage> {
                   Flexible(
                     child: CustomText(
                       text: message.message,
+                      textColor: isMe
+                          ? AppColor.white
+                          : getSuitableColor(AppColor.black, AppColor.white),
                     ),
                   )
                 ],
@@ -159,6 +162,9 @@ class _ChatPageState extends State<ChatPage> {
                     text: dayFormat(message.timestamp),
                     textSize: getProportionateScreenWidth(10),
                     fontWeight: FontWeight.w200,
+                    textColor: isMe
+                        ? AppColor.black
+                        : getSuitableColor(AppColor.black, AppColor.white),
                   )
                 ],
               )
@@ -190,6 +196,7 @@ class _ChatPageState extends State<ChatPage> {
                     text: dayFormat(message.timestamp),
                     textSize: getProportionateScreenWidth(10),
                     fontWeight: FontWeight.w200,
+                    textColor: getSuitableColor(AppColor.black, AppColor.white),
                   )
                 ],
               )
@@ -207,6 +214,8 @@ class _ChatPageState extends State<ChatPage> {
                       text: dayFormat(message.timestamp),
                       textSize: getProportionateScreenWidth(10),
                       fontWeight: FontWeight.w200,
+                      textColor:
+                          getSuitableColor(AppColor.black, AppColor.white),
                     )
                   ],
                 )
@@ -221,11 +230,17 @@ class _ChatPageState extends State<ChatPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Icon(Icons.download_rounded),
+                    Icon(
+                      Icons.download_rounded,
+                      color: isMe
+                          ? AppColor.white
+                          : getSuitableColor(AppColor.black, AppColor.white),
+                    ),
                     SizedBox(width: getProportionateScreenWidth(10)),
                     Flexible(
                       child: CustomText(
                         text: message.message,
+                        textColor: AppColor.white,
                       ),
                     )
                   ],
@@ -266,7 +281,7 @@ class _ChatPageState extends State<ChatPage> {
                 ? isMe
                     ? AppColor.primary
                     : AppColor.doveGray.withOpacity(0.3)
-                : AppColor.white,
+                : Colors.transparent,
             borderRadius: isMe
                 ? BorderRadius.only(
                     topLeft: Radius.circular(Dimens.radius),
@@ -403,6 +418,8 @@ class _ChatPageState extends State<ChatPage> {
               return percentage.compareTo('100.00') != 0
                   ? CustomText(
                       text: 'Sending file... $percentage %',
+                      textColor:
+                          getSuitableColor(AppColor.black, AppColor.white),
                     )
                   : Container();
             } else {
@@ -420,6 +437,8 @@ class _ChatPageState extends State<ChatPage> {
                   ? CustomText(
                       text:
                           'Downloading file... ${status.toStringAsFixed(2)} %',
+                      textColor:
+                          getSuitableColor(AppColor.black, AppColor.white),
                     )
                   : Container();
             } else

@@ -8,6 +8,7 @@ import 'package:chat_app/pages/chat/chat_page.dart';
 import 'package:chat_app/pages/profile/profile_page.dart';
 import 'package:chat_app/services/auth.dart';
 import 'package:chat_app/services/database.dart';
+import 'package:chat_app/utils/get_color.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -54,10 +55,11 @@ class _HomePageState extends State<HomePage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => Provider<Database>(
-                create: (_) => FireStoreDatabase(uid: currentUser.uid),
-                child: ProfilePage(),
-              )),
+        builder: (context) => Provider<Database>(
+          create: (_) => FireStoreDatabase(uid: currentUser.uid),
+          child: ProfilePage(),
+        ),
+      ),
     );
   }
 
@@ -72,7 +74,7 @@ class _HomePageState extends State<HomePage> {
         height: getProportionateScreenHeight(50),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(Dimens.radius),
-          color: AppColor.wildSand,
+          color: getSuitableColor(AppColor.wildSand, AppColor.mineShaft),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -113,9 +115,13 @@ class _HomePageState extends State<HomePage> {
     }
 
     Widget _buildUserCard(BuildContext context, UserInfor user) {
-      return Card(
-        shape: RoundedRectangleBorder(
+      return Container(
+        // shape: RoundedRectangleBorder(
+        //   borderRadius: BorderRadius.circular(Dimens.radius),
+        // ),
+        decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(Dimens.radius),
+          color: getSuitableColor(AppColor.wildSand, AppColor.mineShaft),
         ),
         margin: EdgeInsets.symmetric(
           horizontal: getProportionateScreenWidth(5),
@@ -129,7 +135,7 @@ class _HomePageState extends State<HomePage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(Dimens.radius),
           ),
-          tileColor: AppColor.wildSand,
+          tileColor: getSuitableColor(AppColor.wildSand, AppColor.mineShaft),
           onTap: () => onPressUser(user),
           leading: Material(
             borderRadius: BorderRadius.all(Radius.circular(25)),
@@ -154,20 +160,23 @@ class _HomePageState extends State<HomePage> {
                       return Icon(
                         Icons.account_circle,
                         size: 50,
-                        color: AppColor.doveGray,
+                        color: getSuitableColor(
+                            AppColor.doveGray, AppColor.wildSand),
                       );
                     },
                   )
                 : Icon(
                     Icons.account_circle,
                     size: 50,
-                    color: AppColor.doveGray,
+                    color:
+                        getSuitableColor(AppColor.doveGray, AppColor.wildSand),
                   ),
           ),
           title: CustomText(
             text: user.name,
             textSize: getProportionateScreenWidth(16),
             fontWeight: FontWeight.w600,
+            textColor: getSuitableColor(AppColor.black, AppColor.white),
           ),
         ),
       );
@@ -286,7 +295,6 @@ class _HomePageState extends State<HomePage> {
                   : Material(
                       borderRadius: BorderRadius.all(Radius.circular(25)),
                       clipBehavior: Clip.hardEdge,
-
                       child: Image.network(
                         currentUser.photoURL!,
                         width: 24,
@@ -306,7 +314,8 @@ class _HomePageState extends State<HomePage> {
                           return Icon(
                             Icons.account_circle,
                             size: 50,
-                            color: AppColor.doveGray,
+                            color: getSuitableColor(
+                                AppColor.doveGray, AppColor.wildSand),
                           );
                         },
                       ),

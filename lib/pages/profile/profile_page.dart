@@ -8,6 +8,7 @@ import 'package:chat_app/constants/dimens.dart';
 import 'package:chat_app/constants/size_config.dart';
 import 'package:chat_app/services/auth.dart';
 import 'package:chat_app/services/database.dart';
+import 'package:chat_app/utils/get_color.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
@@ -108,48 +109,49 @@ class _ProfilePageState extends State<ProfilePage> {
       return CupertinoButton(
         onPressed: isUploadNewAvatar ? null : onPressChangeImage,
         child: Container(
-            height: getProportionateScreenHeight(100),
-            child: Center(
-              child: Stack(
-                children: [
-                  Center(
-                    child: Material(
-                      borderRadius: BorderRadius.all(Radius.circular(50)),
-                      clipBehavior: Clip.hardEdge,
-                      child: avatar.isNotEmpty
-                          ? Image.network(
-                              avatar,
-                              width: 100,
-                              height: 100,
-                              fit: BoxFit.cover,
-                              loadingBuilder: (BuildContext context,
-                                  Widget child,
-                                  ImageChunkEvent? loadingProgress) {
-                                if (loadingProgress == null) return child;
-                                return CircularProgressIndicator(
-                                  value: loadingProgress.expectedTotalBytes !=
-                                          null
-                                      ? loadingProgress.cumulativeBytesLoaded /
-                                          loadingProgress.expectedTotalBytes!
-                                      : null,
-                                );
-                              },
-                            )
-                          : Container(),
-                    ),
+          height: 100,
+          width: 100,
+          child: Center(
+            child: Stack(
+              children: <Widget>[
+                Center(
+                  child: Material(
+                    borderRadius: BorderRadius.all(Radius.circular(50)),
+                    clipBehavior: Clip.hardEdge,
+                    child: avatar.isNotEmpty
+                        ? Image.network(
+                            avatar,
+                            width: 100,
+                            height: 100,
+                            fit: BoxFit.cover,
+                            loadingBuilder: (BuildContext context, Widget child,
+                                ImageChunkEvent? loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return CircularProgressIndicator(
+                                value: loadingProgress.expectedTotalBytes !=
+                                        null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                        loadingProgress.expectedTotalBytes!
+                                    : null,
+                              );
+                            },
+                          )
+                        : Container(),
                   ),
-                  Center(
-                    child: task != null
-                        ? _buildUploadStatus(task!)
-                        : Icon(
-                            Icons.camera_alt_outlined,
-                            size: 40,
-                            color: AppColor.primary.withOpacity(0.3),
-                          ),
-                  ),
-                ],
-              ),
-            )),
+                ),
+                Center(
+                  child: task != null
+                      ? _buildUploadStatus(task!)
+                      : Icon(
+                          Icons.camera_alt_outlined,
+                          size: 40,
+                          color: AppColor.primary.withOpacity(0.3),
+                        ),
+                ),
+              ],
+            ),
+          ),
+        ),
       );
     }
 
@@ -209,6 +211,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       text: 'Name: ',
                       textSize: getProportionateScreenWidth(15),
                       fontWeight: FontWeight.w500,
+                      textColor:
+                          getSuitableColor(AppColor.black, AppColor.white),
                     ),
                     Flexible(child: _buildNameEditing())
                   ],
