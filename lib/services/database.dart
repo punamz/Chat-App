@@ -70,7 +70,6 @@ class FireStoreDatabase implements Database {
   @override
   Stream<QuerySnapshot> messageStream(String chatId, int limit) {
     final path = APIPath.messages();
-    print(chatId);
     return FirebaseFirestore.instance
         .collection(path)
         .where('chatId', isEqualTo: chatId)

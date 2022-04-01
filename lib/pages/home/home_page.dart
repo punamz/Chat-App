@@ -10,9 +10,7 @@ import 'package:chat_app/services/auth.dart';
 import 'package:chat_app/services/database.dart';
 import 'package:chat_app/utils/get_color.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 import 'package:provider/provider.dart';
 

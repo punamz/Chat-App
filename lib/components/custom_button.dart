@@ -1,9 +1,6 @@
 import 'package:chat_app/constants/colors.dart';
 import 'package:chat_app/constants/dimens.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
-
 
 class CustomButton extends StatelessWidget {
   final String? icon;

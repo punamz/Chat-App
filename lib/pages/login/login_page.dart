@@ -6,7 +6,6 @@ import 'package:chat_app/constants/size_config.dart';
 import 'package:chat_app/pages/sign_up/sign_up_page.dart';
 import 'package:chat_app/services/auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';

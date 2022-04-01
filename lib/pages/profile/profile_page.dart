@@ -15,7 +15,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';
-import 'package:provider/src/provider.dart';
+import 'package:provider/provider.dart';
 
 class ProfilePage extends StatefulWidget {
   @override

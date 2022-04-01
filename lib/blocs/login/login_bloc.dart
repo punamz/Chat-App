@@ -53,5 +53,6 @@ class LoginBloc {
     if (email.isNotEmpty && password.isNotEmpty) {
       return _signIn(auth.signInWithEmail(email, password));
     }
+    return null;
   }
 }

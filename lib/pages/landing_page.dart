@@ -7,6 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../services/notification.dart';
 import 'login/login_page.dart';
 
 class LandingPage extends StatelessWidget {
@@ -23,6 +24,7 @@ class LandingPage extends StatelessWidget {
         if (user == null) {
           return LoginPage(auth: auth);
         } else {
+          FirebaseNotification().initialize();
           return Provider<Database>(
             create: (_) => FireStoreDatabase(uid: user.uid),
             child: HomePage(),
