@@ -1,11 +1,16 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:chat_app/models/message.dart';
+import 'package:chat_app/models/user.dart' as u;
 import 'package:chat_app/services/database.dart';
-import 'package:chat_app/services/storageDatabase.dart';
+import 'package:chat_app/services/notification.dart';
+import 'package:chat_app/services/storage_database.dart';
+import 'package:chat_app/utils/kind_of_file.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -13,8 +18,9 @@ import 'package:permission_handler/permission_handler.dart';
 
 class ChatBloc {
   final Database database;
+  final NotificationBase notification;
 
-  ChatBloc({required this.database});
+  ChatBloc({required this.database, required this.notification});
 
   final StreamController<double> _downloadStatusController =
       StreamController<double>();
@@ -25,9 +31,8 @@ class ChatBloc {
     _downloadStatusController.close();
   }
 
-  Stream<QuerySnapshot> getMessageStream(String chatId, int limit) {
-    return database.messageStream(chatId, limit);
-  }
+  Stream<QuerySnapshot> getMessageStream(String chatId, int limit) =>
+      database.messageStream(chatId: chatId, limit: limit);
 
   void sendMessage({
     required String content,
@@ -46,12 +51,65 @@ class ChatBloc {
       like: false,
       url: url,
     );
-    database.saveMessage(message);
+    database.saveMessage(message: message);
   }
 
-  void likeMessage(Message message) {
-    database.updateLikeMessage(message);
+  Future<void> sendNotices({
+    required u.UserInfo receiver,
+    required User sender,
+    required String message,
+    required int type,
+  }) async {
+    List<String> msgToken = await database.getMsgToken(id: receiver.id);
+
+    /// if receiver does login any device
+    /// we don't need to send notification
+    if (msgToken.isEmpty) return;
+
+    String body = '';
+    switch (type) {
+      case messageType:
+        body = message;
+        break;
+      case videoType:
+        body = '${sender.displayName} send a video to you';
+        break;
+      case imageType:
+        body = '${sender.displayName} send a picture to you';
+        break;
+      case fileType:
+        body = '${sender.displayName} send a file to you';
+        break;
+      default:
+        body = '${sender.displayName} send a message';
+        break;
+    }
+    final Map<String, dynamic> param = {
+      'notification': {
+        'body': body,
+        'title': sender.displayName ?? 'App Chat',
+        'android_channel_id': '02862582324',
+        'click_action': 'FLUTTER_NOTIFICATION_CLICK',
+        'image': type == imageType ? message : null,
+        'sound': 'enable'
+      },
+      'priority': 'high',
+      'data': {
+        'page': 'ChatPage',
+        'arguments': {'userInfo': receiver.toMap()},
+      },
+      'registration_ids': msgToken,
+      'apns': {
+        'payload': {
+          'aps': {'sound': 'default'}
+        }
+      }
+    };
+    notification.sendNotification(param: param);
   }
+
+  void likeMessage(Message message) =>
+      database.updateLikeMessage(message: message);
 
   UploadTask? uploadFile(File file) {
     final fileName = basename(file.path);
@@ -62,7 +120,7 @@ class ChatBloc {
   Future<String> downloadFile(String filename, String url) async {
     await Permission.storage.request();
     Dio dio = Dio();
-    var dir;
+    String dir = "";
     if (Platform.isAndroid) {
       dir = "/sdcard/download/";
     } else {

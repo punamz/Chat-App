@@ -26,15 +26,14 @@ class _VideoPlayerState extends State<VideoPlayer> {
       videoPlayerController: videoPlayerController,
       autoPlay: true,
       looping: true,
+      showControlsOnInitialize: false,
     );
   }
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     initializePlayer();
-    print(widget.videoUrl);
   }
 
   @override
@@ -46,24 +45,13 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Center(
+    return Center(
+      child: AspectRatio(
+        aspectRatio: 18 / 9,
         child: _chewieController != null &&
                 _chewieController!.videoPlayerController.value.isInitialized
-            ? AspectRatio(
-                aspectRatio: 18 / 9,
-                child: Chewie(
-                  controller: _chewieController!,
-                ),
-              )
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 20),
-                  Text('Loading'),
-                ],
-              ),
+            ? Chewie(controller: _chewieController!)
+            : const Center(child: CircularProgressIndicator(strokeWidth: 1)),
       ),
     );
   }

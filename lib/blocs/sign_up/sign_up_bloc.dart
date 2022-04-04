@@ -55,11 +55,12 @@ class SignUpBloc {
         _setIsLoading(true);
         final user = await auth.createUserWithEmailAndPassword(email, password);
         await user!.updateDisplayName(name);
-        FireStoreDatabase(uid: user.uid).saveUserInfor(
-          new UserInfor(
+        FireStoreDatabase(uid: user.uid).saveUserInfo(
+          userInfo: UserInfo(
             id: user.uid,
             name: name,
             photoURL: user.photoURL ?? '',
+            msgToken: [],
           ),
         );
         return true;

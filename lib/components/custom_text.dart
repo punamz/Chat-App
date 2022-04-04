@@ -9,13 +9,14 @@ class CustomText extends StatelessWidget {
   final double height;
 
   const CustomText({
+    Key? key,
     this.text = '',
-    this.textSize: 15.0,
-    this.textColor: Colors.black,
-    this.fontWeight: FontWeight.normal,
-    this.textAlign: TextAlign.start,
-    this.height: 1,
-  });
+    this.textSize = 15.0,
+    this.textColor = Colors.black,
+    this.fontWeight = FontWeight.normal,
+    this.textAlign = TextAlign.start,
+    this.height = 1,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

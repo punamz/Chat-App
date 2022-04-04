@@ -7,18 +7,14 @@ class HomeBloc {
 
   HomeBloc({required this.database});
 
+  Stream<QuerySnapshot> findUserStream(String textSearch) =>
+      database.userStream(textSearch: textSearch);
 
-  Stream<QuerySnapshot> findUserStream(String textSearch) {
-    return database.userStream(textSearch);
-  }
+  Stream<QuerySnapshot> getChatStream() => database.chatStream();
 
-  Stream<QuerySnapshot> getChatStream(String currentUserId){
-    return database.chatStream(currentUserId);
-  }
-
-  Future<UserInfor> getUserInfor(String id) async {
-    final snapshot = await database.getUserInfor(id);
-    final user = UserInfor.fromDocument(snapshot);
+  Future<UserInfo> getUserInfo(String id) async {
+    final snapshot = await database.getUserInfo(id: id);
+    final user = UserInfo.fromDocument(snapshot);
     return user;
   }
 }

@@ -10,6 +10,7 @@ import 'package:chat_app/models/message.dart';
 import 'package:chat_app/models/user.dart';
 import 'package:chat_app/services/auth.dart';
 import 'package:chat_app/services/database.dart';
+import 'package:chat_app/services/notification.dart';
 import 'package:chat_app/utils/get_chat_id.dart';
 import 'package:chat_app/utils/get_color.dart';
 import 'package:chat_app/utils/kind_of_file.dart';
@@ -23,21 +24,20 @@ import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 import 'package:provider/provider.dart';
 
 class ChatPage extends StatefulWidget {
-  const ChatPage({Key? key, required this.user}) : super(key: key);
+  const ChatPage({Key? key, required this.userInfo}) : super(key: key);
 
-  final UserInfor user;
+  final UserInfo userInfo;
 
   @override
   _ChatPageState createState() => _ChatPageState();
 }
 
 class _ChatPageState extends State<ChatPage> {
-  final TextEditingController textInputController = new TextEditingController();
-  final ScrollController messageListScrollController = new ScrollController();
+  final TextEditingController textInputController = TextEditingController();
+  final ScrollController messageListScrollController = ScrollController();
   final currentUser = Auth().currentUser;
   int _limit = 20;
   final _limitIncrement = 20;
-  late Database database;
   late ChatBloc bloc;
   late String chatId;
   UploadTask? task;
@@ -77,10 +77,11 @@ class _ChatPageState extends State<ChatPage> {
 
   void _sendMessage({required int type, String? fileName, String? url}) {
     String content = '';
-    if (type == messageType)
+    if (type == messageType) {
       content = textInputController.text.trim();
-    else
+    } else {
       content = fileName!;
+    }
 
     if (content.isNotEmpty) {
       textInputController.clear();
@@ -91,8 +92,15 @@ class _ChatPageState extends State<ChatPage> {
         type: type,
         url: url,
       );
+
+      bloc.sendNotices(
+        sender: currentUser!,
+        receiver: widget.userInfo,
+        message: content,
+        type: type,
+      );
       messageListScrollController.animateTo(0,
-          duration: Duration(milliseconds: 300), curve: Curves.easeOut);
+          duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
     }
   }
 
@@ -120,10 +128,12 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    database = context.read<Database>();
-    bloc = new ChatBloc(database: database);
+    bloc = ChatBloc(
+      database: context.read<Database>(),
+      notification: context.read<NotificationBase>(),
+    );
     messageListScrollController.addListener(_scrollListener);
-    chatId = getChatId(currentUser!.uid, widget.user.id);
+    chatId = getChatId(currentUser!.uid, widget.userInfo.id);
   }
 
   @override
@@ -282,11 +292,11 @@ class _ChatPageState extends State<ChatPage> {
                     : AppColor.doveGray.withOpacity(0.3)
                 : Colors.transparent,
             borderRadius: isMe
-                ? BorderRadius.only(
+                ? const BorderRadius.only(
                     topLeft: Radius.circular(Dimens.radius),
                     bottomLeft: Radius.circular(Dimens.radius),
                   )
-                : BorderRadius.only(
+                : const BorderRadius.only(
                     topRight: Radius.circular(Dimens.radius),
                     bottomRight: Radius.circular(Dimens.radius),
                   ),
@@ -305,8 +315,8 @@ class _ChatPageState extends State<ChatPage> {
                   IconButton(
                     onPressed: () => _onPressLikeMessage(message),
                     icon: message.like
-                        ? Icon(Icons.favorite)
-                        : Icon(Icons.favorite_border),
+                        ? const Icon(Icons.favorite)
+                        : const Icon(Icons.favorite_border),
                     color: message.like ? AppColor.primary : AppColor.doveGray,
                   ),
               ],
@@ -317,14 +327,14 @@ class _ChatPageState extends State<ChatPage> {
               bottom: 0,
               left: getProportionateScreenWidth(45),
               child: Container(
-                padding: EdgeInsets.all(2),
-                decoration: BoxDecoration(
+                padding: const EdgeInsets.all(2),
+                decoration: const BoxDecoration(
                   color: AppColor.white,
                   borderRadius: BorderRadius.all(
                     Radius.circular(Dimens.radius),
                   ),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.favorite,
                   color: AppColor.primary,
                 ),
@@ -341,7 +351,7 @@ class _ChatPageState extends State<ChatPage> {
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               final messageList = snapshot.data?.docs;
-              if ((messageList!.length) > 0) {
+              if (messageList!.isNotEmpty) {
                 return ListView.builder(
                   itemBuilder: (context, index) {
                     final message = Message.fromDocument(messageList[index]);
@@ -351,10 +361,11 @@ class _ChatPageState extends State<ChatPage> {
                   reverse: true,
                   controller: messageListScrollController,
                 );
-              } else
+              } else {
                 return Container();
+              }
             } else {
-              return Center(
+              return const Center(
                 child: CircularProgressIndicator(),
               );
             }
@@ -366,7 +377,7 @@ class _ChatPageState extends State<ChatPage> {
     _buildInput() {
       return Container(
         height: getProportionateScreenHeight(50),
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           border: Border(
             top: BorderSide(color: AppColor.doveGray, width: 0.5),
           ),
@@ -375,29 +386,27 @@ class _ChatPageState extends State<ChatPage> {
           children: [
             IconButton(
               onPressed: _onPressSendImage,
-              icon: Icon(Icons.photo),
+              icon: const Icon(Icons.photo),
               iconSize: getProportionateScreenWidth(25),
               color: AppColor.primary,
             ),
             IconButton(
               onPressed: _onPressSendFile,
-              icon: Icon(Icons.attach_file),
+              icon: const Icon(Icons.attach_file),
               iconSize: getProportionateScreenWidth(25),
               color: AppColor.primary,
             ),
             Expanded(
-              child: Container(
-                child: TextField(
-                  controller: textInputController,
-                  textCapitalization: TextCapitalization.sentences,
-                  decoration: InputDecoration.collapsed(
-                    hintText: 'Send a message...',
-                  ),
+              child: TextField(
+                controller: textInputController,
+                textCapitalization: TextCapitalization.sentences,
+                decoration: const InputDecoration.collapsed(
+                  hintText: 'Send a message...',
                 ),
               ),
             ),
             IconButton(
-              icon: Icon(Icons.send),
+              icon: const Icon(Icons.send),
               iconSize: getProportionateScreenWidth(25),
               color: AppColor.primary,
               onPressed: () => _sendMessage(type: 1),
@@ -439,9 +448,10 @@ class _ChatPageState extends State<ChatPage> {
                       textColor:
                           getSuitableColor(AppColor.black, AppColor.white),
                     )
-                  : Container();
-            } else
-              return Container();
+                  : const SizedBox.shrink();
+            } else {
+              return const SizedBox.shrink();
+            }
           },
         );
 
@@ -449,7 +459,7 @@ class _ChatPageState extends State<ChatPage> {
       child: Scaffold(
         appBar: AppBar(
           title: CustomText(
-            text: widget.user.name,
+            text: widget.userInfo.name,
             textColor: AppColor.white,
             textSize: getProportionateScreenWidth(17),
           ),

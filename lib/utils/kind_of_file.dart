@@ -7,9 +7,10 @@ const fileType = 4;
 
 int checkTypeOfFile(String path) {
   final file = lookupMimeType(path)!.split('/').first;
-  print(file);
-  if (file == 'image')
+  if (file == 'image') {
     return imageType;
-  else if (file == 'video') return videoType;
+  } else if (file == 'video') {
+    return videoType;
+  }
   return fileType;
 }

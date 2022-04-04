@@ -3,19 +3,18 @@ import 'package:chat_app/constants/dimens.dart';
 import 'package:flutter/material.dart';
 
 class CustomButton extends StatelessWidget {
-  final String? icon;
   final Widget child;
   final Color color;
   final double borderRadius;
   final VoidCallback? onPressed;
 
   const CustomButton({
-    this.color: AppColor.primary,
-    this.borderRadius: Dimens.radius,
+    Key? key,
+    this.color = AppColor.primary,
+    this.borderRadius = Dimens.radius,
     required this.onPressed,
-    this.icon,
     required this.child,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +24,6 @@ class CustomButton extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          if (icon != null) Image.asset(icon!),
           child,
         ],
       ),

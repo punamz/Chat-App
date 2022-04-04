@@ -18,6 +18,8 @@ import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 import 'package:provider/provider.dart';
 
 class ProfilePage extends StatefulWidget {
+  const ProfilePage({Key? key}) : super(key: key);
+
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 }
@@ -25,7 +27,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   final currentUser = Auth().currentUser!;
 
-  final TextEditingController _nameController = new TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
   late ProfileBloc bloc;
   late Database database;
   String avatar = '';
@@ -65,7 +67,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void _logout() {
-    Auth().signOut();
+    bloc.logout();
     Navigator.pop(context);
   }
 
@@ -108,7 +110,7 @@ class _ProfilePageState extends State<ProfilePage> {
     _buildAvatar() {
       return CupertinoButton(
         onPressed: isUploadNewAvatar ? null : onPressChangeImage,
-        child: Container(
+        child: SizedBox(
           height: 100,
           width: 100,
           child: Center(
@@ -116,7 +118,7 @@ class _ProfilePageState extends State<ProfilePage> {
               children: <Widget>[
                 Center(
                   child: Material(
-                    borderRadius: BorderRadius.all(Radius.circular(50)),
+                    borderRadius: const BorderRadius.all(Radius.circular(50)),
                     clipBehavior: Clip.hardEdge,
                     child: avatar.isNotEmpty
                         ? Image.network(
@@ -158,7 +160,7 @@ class _ProfilePageState extends State<ProfilePage> {
     _buildNameEditing() {
       return TextField(
         controller: _nameController,
-        decoration: InputDecoration(
+        decoration: const InputDecoration(
           contentPadding: EdgeInsets.all(5),
         ),
         onChanged: (value) => setState(() {}),
@@ -168,7 +170,7 @@ class _ProfilePageState extends State<ProfilePage> {
     _buildChangeNameButton() {
       bool isTrue = currentUser.displayName != _nameController.text &&
           _nameController.text.trim().isNotEmpty;
-      return Container(
+      return SizedBox(
         width: double.infinity,
         height: getProportionateScreenHeight(45),
         child: CustomButton(
@@ -189,7 +191,7 @@ class _ProfilePageState extends State<ProfilePage> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0.0,
-          iconTheme: IconThemeData(
+          iconTheme: const IconThemeData(
             color: AppColor.hotCinnamon,
           ),
         ),
@@ -197,9 +199,9 @@ class _ProfilePageState extends State<ProfilePage> {
           child: Padding(
             padding: EdgeInsets.symmetric(
               horizontal:
-                  getProportionateScreenWidth(Dimens.slight_horizontal_margin),
+                  getProportionateScreenWidth(Dimens.slightHorizontalMargin),
               vertical:
-                  getProportionateScreenHeight(Dimens.slight_vertical_margin),
+                  getProportionateScreenHeight(Dimens.slightVerticalMargin),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -220,7 +222,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 SizedBox(height: getProportionateScreenHeight(20)),
                 _buildChangeNameButton(),
                 SizedBox(height: getProportionateScreenHeight(20)),
-                Container(
+                SizedBox(
                   width: double.infinity,
                   height: getProportionateScreenHeight(45),
                   child: CustomButton(

@@ -4,25 +4,32 @@ import 'package:chat_app/models/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 abstract class Database {
-  void saveUserInfor(UserInfor user);
+  void saveUserInfo({required UserInfo userInfo});
 
-  void updateUserAvatar(String uid, String url);
+  void updateUserAvatar({required String url});
 
-  void updateUserName(String uid, String newName);
+  void updateUserName({required String newName});
 
-  Future<void> saveMessage(Message message);
+  void addMsgToken({required String? token});
 
-  void createChat(String chatId);
+  void removeMsgToken({required String token});
 
-  void updateLikeMessage(Message message);
+  Future<List<String>> getMsgToken({required String id});
 
-  Stream<QuerySnapshot> userStream(String textSearch);
+  Future<void> saveMessage({required Message message});
 
-  Stream<QuerySnapshot> chatStream(String currentUserID);
+  void createChat({required String chatId});
 
-  Stream<QuerySnapshot> messageStream(String chatId, int limit);
+  void updateLikeMessage({required Message message});
 
-  Future<DocumentSnapshot> getUserInfor(String id);
+  Stream<QuerySnapshot> userStream({required String textSearch});
+
+  Stream<QuerySnapshot> chatStream();
+
+  Stream<QuerySnapshot> messageStream(
+      {required String chatId, required int limit});
+
+  Future<DocumentSnapshot> getUserInfo({required String id});
 }
 
 class FireStoreDatabase implements Database {
@@ -31,18 +38,18 @@ class FireStoreDatabase implements Database {
   final String uid;
 
   @override
-  void saveUserInfor(user) {
-    // TODO: implement saveUserInfor
+  void saveUserInfo({required UserInfo userInfo}) {
     try {
-      final path = APIPath.user(user.id);
+      final path = APIPath.user(userInfo.id);
       final documentReference = FirebaseFirestore.instance.doc(path);
-      documentReference.set(user.toMap());
+      documentReference.set(userInfo.toMap());
     } catch (e) {
       rethrow;
     }
   }
 
-  Stream<QuerySnapshot> userStream(String textSearch) {
+  @override
+  Stream<QuerySnapshot> userStream({required String textSearch}) {
     final path = APIPath.users();
     return FirebaseFirestore.instance
         .collection(path)
@@ -51,24 +58,23 @@ class FireStoreDatabase implements Database {
   }
 
   @override
-  Stream<QuerySnapshot> chatStream(String currentUserID) {
-    // TODO: implement chatStream
+  Stream<QuerySnapshot> chatStream() {
     final path = APIPath.chats();
     return FirebaseFirestore.instance
         .collection(path)
-        .where('members', arrayContains: currentUserID)
+        .where('members', arrayContains: uid)
         .snapshots();
   }
 
   @override
-  Future<DocumentSnapshot> getUserInfor(String id) async {
-    // TODO: implement getUserInfor
+  Future<DocumentSnapshot> getUserInfo({required String id}) async {
     final path = APIPath.user(id);
     return await FirebaseFirestore.instance.doc(path).get();
   }
 
   @override
-  Stream<QuerySnapshot> messageStream(String chatId, int limit) {
+  Stream<QuerySnapshot> messageStream(
+      {required String chatId, required int limit}) {
     final path = APIPath.messages();
     return FirebaseFirestore.instance
         .collection(path)
@@ -79,12 +85,12 @@ class FireStoreDatabase implements Database {
   }
 
   @override
-  Future<void> saveMessage(Message message) async {
+  Future<void> saveMessage({required Message message}) async {
     final path = APIPath.message(message.id);
     final documentReference = FirebaseFirestore.instance.doc(path);
     documentReference.set(message.toMap());
     bool isChatExit = await checkChatIdExists(message.chatId);
-    if (!isChatExit) createChat(message.chatId);
+    if (!isChatExit) createChat(chatId: message.chatId);
   }
 
   Future<bool> checkChatIdExists(String chatId) async {
@@ -94,8 +100,7 @@ class FireStoreDatabase implements Database {
   }
 
   @override
-  void createChat(String chatId) {
-    // TODO: implement createChat
+  void createChat({required String chatId}) {
     final path = APIPath.chat(chatId);
     final ids = chatId.split('->');
     final documentReference = FirebaseFirestore.instance.doc(path);
@@ -104,26 +109,48 @@ class FireStoreDatabase implements Database {
   }
 
   @override
-  void updateLikeMessage(Message message) {
-    // TODO: implement updateLikeMessage
+  void updateLikeMessage({required Message message}) {
     final path = APIPath.message(message.id);
     final documentReference = FirebaseFirestore.instance.doc(path);
     documentReference.update({'like': !message.like});
   }
 
   @override
-  void updateUserAvatar(String uid, String url) {
-    // TODO: implement updateUserAvatar
+  void updateUserAvatar({required String url}) {
     final path = APIPath.user(uid);
     final documentReference = FirebaseFirestore.instance.doc(path);
     documentReference.update({'photoURL': url});
   }
 
   @override
-  void updateUserName(String uid, String newName) {
-    // TODO: implement updateUserName
+  void updateUserName({required String newName}) {
     final path = APIPath.user(uid);
     final documentReference = FirebaseFirestore.instance.doc(path);
     documentReference.update({'name': newName});
+  }
+
+  @override
+  void addMsgToken({required String? token}) {
+    final path = APIPath.user(uid);
+    final documentReference = FirebaseFirestore.instance.doc(path);
+    documentReference.update({
+      'msgToken': FieldValue.arrayUnion([token])
+    });
+  }
+
+  @override
+  void removeMsgToken({required String token}) {
+    final path = APIPath.user(uid);
+    final documentReference = FirebaseFirestore.instance.doc(path);
+    documentReference.update({
+      'msgToken': FieldValue.arrayRemove([token])
+    });
+  }
+
+  @override
+  Future<List<String>> getMsgToken({required String id}) async {
+    final path = APIPath.user(id);
+    final documentSnapshot = await FirebaseFirestore.instance.doc(path).get();
+    return documentSnapshot.get('msgToken').cast<String>();
   }
 }

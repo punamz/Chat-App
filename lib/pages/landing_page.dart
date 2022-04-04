@@ -11,7 +11,9 @@ import '../services/notification.dart';
 import 'login/login_page.dart';
 
 class LandingPage extends StatelessWidget {
-  const LandingPage({Key? key}) : super(key: key);
+  LandingPage({Key? key}) : super(key: key);
+
+  final NotificationBase notification = FirebaseNotification()..initialize();
 
   @override
   Widget build(BuildContext context) {
@@ -24,10 +26,16 @@ class LandingPage extends StatelessWidget {
         if (user == null) {
           return LoginPage(auth: auth);
         } else {
-          FirebaseNotification().initialize();
-          return Provider<Database>(
-            create: (_) => FireStoreDatabase(uid: user.uid),
-            child: HomePage(),
+          return MultiProvider(
+            providers: [
+              /// provider database and init new msg token (device token)
+              Provider<Database>(
+                create: (_) => FireStoreDatabase(uid: user.uid)
+                  ..addMsgToken(token: currentDeviceMsgToken),
+              ),
+              Provider<NotificationBase>(create: (_) => notification)
+            ],
+            child: const HomePage(),
           );
         }
       },

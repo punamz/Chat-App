@@ -16,7 +16,6 @@ class Auth implements AuthBase {
   final _firebaseAuth = FirebaseAuth.instance;
 
   @override
-  // TODO: implement currentUser
   User? get currentUser => _firebaseAuth.currentUser;
 
   @override
