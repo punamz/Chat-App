@@ -5,7 +5,6 @@ import 'package:chat_app/components/custom_text.dart';
 import 'package:chat_app/components/video_player.dart';
 import 'package:chat_app/constants/colors.dart';
 import 'package:chat_app/constants/dimens.dart';
-import 'package:chat_app/constants/size_config.dart';
 import 'package:chat_app/models/message.dart';
 import 'package:chat_app/models/user.dart';
 import 'package:chat_app/services/auth.dart';
@@ -19,6 +18,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 import 'package:provider/provider.dart';
@@ -169,7 +169,7 @@ class _ChatPageState extends State<ChatPage> {
                 children: [
                   CustomText(
                     text: dayFormat(message.timestamp),
-                    textSize: getProportionateScreenWidth(10),
+                    textSize: 10.w,
                     fontWeight: FontWeight.w200,
                     textColor: isMe
                         ? AppColor.black
@@ -203,7 +203,7 @@ class _ChatPageState extends State<ChatPage> {
                 children: [
                   CustomText(
                     text: dayFormat(message.timestamp),
-                    textSize: getProportionateScreenWidth(10),
+                    textSize: 10.w,
                     fontWeight: FontWeight.w200,
                     textColor: getSuitableColor(AppColor.black, AppColor.white),
                   )
@@ -221,7 +221,7 @@ class _ChatPageState extends State<ChatPage> {
                   children: [
                     CustomText(
                       text: dayFormat(message.timestamp),
-                      textSize: getProportionateScreenWidth(10),
+                      textSize: 10.w,
                       fontWeight: FontWeight.w200,
                       textColor:
                           getSuitableColor(AppColor.black, AppColor.white),
@@ -245,7 +245,7 @@ class _ChatPageState extends State<ChatPage> {
                           ? AppColor.white
                           : getSuitableColor(AppColor.black, AppColor.white),
                     ),
-                    SizedBox(width: getProportionateScreenWidth(10)),
+                    SizedBox(width: 10.w),
                     Flexible(
                       child: CustomText(
                         text: message.message,
@@ -259,7 +259,7 @@ class _ChatPageState extends State<ChatPage> {
                   children: [
                     CustomText(
                       text: dayFormat(message.timestamp),
-                      textSize: getProportionateScreenWidth(10),
+                      textSize: 10.w,
                       fontWeight: FontWeight.w200,
                     )
                   ],
@@ -268,7 +268,7 @@ class _ChatPageState extends State<ChatPage> {
             ),
           );
         default:
-          return Container();
+          return const SizedBox.shrink();
       }
     }
 
@@ -277,13 +277,11 @@ class _ChatPageState extends State<ChatPage> {
 
       final msg = Container(
           margin: EdgeInsets.only(
-            left: isMe ? getProportionateScreenWidth(50) : 0,
+            left: isMe ? 50.w : 0,
           ),
           padding: EdgeInsets.symmetric(
-            horizontal: getProportionateScreenWidth(15),
-            vertical: message.type == 1 || message.type == 4
-                ? getProportionateScreenHeight(10)
-                : 0,
+            horizontal: 15.w,
+            vertical: message.type == 1 || message.type == 4 ? 10.h : 0,
           ),
           decoration: BoxDecoration(
             color: message.type == messageType || message.type == fileType
@@ -292,11 +290,11 @@ class _ChatPageState extends State<ChatPage> {
                     : AppColor.doveGray.withOpacity(0.3)
                 : Colors.transparent,
             borderRadius: isMe
-                ? const BorderRadius.only(
+                ? BorderRadius.only(
                     topLeft: Radius.circular(Dimens.radius),
                     bottomLeft: Radius.circular(Dimens.radius),
                   )
-                : const BorderRadius.only(
+                : BorderRadius.only(
                     topRight: Radius.circular(Dimens.radius),
                     bottomRight: Radius.circular(Dimens.radius),
                   ),
@@ -306,7 +304,7 @@ class _ChatPageState extends State<ChatPage> {
       return Stack(
         children: [
           Padding(
-            padding: EdgeInsets.only(bottom: getProportionateScreenHeight(10)),
+            padding: EdgeInsets.only(bottom: 10.h),
             child: Row(
               mainAxisSize: MainAxisSize.max,
               children: [
@@ -325,10 +323,10 @@ class _ChatPageState extends State<ChatPage> {
           if (isMe && message.like)
             Positioned(
               bottom: 0,
-              left: getProportionateScreenWidth(45),
+              left: 45.w,
               child: Container(
                 padding: const EdgeInsets.all(2),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: AppColor.white,
                   borderRadius: BorderRadius.all(
                     Radius.circular(Dimens.radius),
@@ -376,7 +374,7 @@ class _ChatPageState extends State<ChatPage> {
 
     _buildInput() {
       return Container(
-        height: getProportionateScreenHeight(50),
+        height: 50.h,
         decoration: const BoxDecoration(
           border: Border(
             top: BorderSide(color: AppColor.doveGray, width: 0.5),
@@ -387,13 +385,13 @@ class _ChatPageState extends State<ChatPage> {
             IconButton(
               onPressed: _onPressSendImage,
               icon: const Icon(Icons.photo),
-              iconSize: getProportionateScreenWidth(25),
+              iconSize: 25.w,
               color: AppColor.primary,
             ),
             IconButton(
               onPressed: _onPressSendFile,
               icon: const Icon(Icons.attach_file),
-              iconSize: getProportionateScreenWidth(25),
+              iconSize: 25.w,
               color: AppColor.primary,
             ),
             Expanded(
@@ -407,7 +405,7 @@ class _ChatPageState extends State<ChatPage> {
             ),
             IconButton(
               icon: const Icon(Icons.send),
-              iconSize: getProportionateScreenWidth(25),
+              iconSize: 25.w,
               color: AppColor.primary,
               onPressed: () => _sendMessage(type: 1),
             ),
@@ -429,9 +427,9 @@ class _ChatPageState extends State<ChatPage> {
                       textColor:
                           getSuitableColor(AppColor.black, AppColor.white),
                     )
-                  : Container();
+                  : const SizedBox.shrink();
             } else {
-              return Container();
+              return const SizedBox.shrink();
             }
           },
         );
@@ -461,13 +459,15 @@ class _ChatPageState extends State<ChatPage> {
           title: CustomText(
             text: widget.userInfo.name,
             textColor: AppColor.white,
-            textSize: getProportionateScreenWidth(17),
+            textSize: 17.w,
           ),
         ),
         body: Column(
           children: [
             _buildMessageList(),
-            task != null ? _buildSendFileStatus(task!) : Container(),
+            task != null
+                ? _buildSendFileStatus(task!)
+                : const SizedBox.shrink(),
             _buildDownloadStatus(),
             _buildInput(),
           ],

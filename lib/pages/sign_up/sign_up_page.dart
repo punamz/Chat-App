@@ -1,11 +1,12 @@
 import 'package:chat_app/blocs/sign_up/sign_up_bloc.dart';
 import 'package:chat_app/components/custom_button.dart';
 import 'package:chat_app/components/custom_text.dart';
+import 'package:chat_app/constants/colors.dart';
 import 'package:chat_app/constants/dimens.dart';
-import 'package:chat_app/constants/size_config.dart';
 import 'package:chat_app/services/auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 
@@ -57,12 +58,13 @@ class _SignUpPageState extends State<SignUpPage> {
           return TextField(
             controller: _nameController,
             decoration: InputDecoration(
-              icon: const Icon(Icons.assignment_ind, color: Colors.white),
+              icon: const Icon(Icons.assignment_ind, color: AppColor.white),
               labelText: 'FullName',
-              labelStyle: const TextStyle(color: Colors.white),
+              labelStyle: const TextStyle(color: AppColor.white),
               errorText: snapshot.data,
             ),
-            style: const TextStyle(color: Colors.white),
+            cursorColor: AppColor.white,
+            style: const TextStyle(color: AppColor.white),
             autocorrect: false,
             keyboardType: TextInputType.text,
             textInputAction: TextInputAction.next,
@@ -78,14 +80,15 @@ class _SignUpPageState extends State<SignUpPage> {
           return TextField(
             controller: _emailController,
             decoration: InputDecoration(
-              icon: const Icon(Icons.email, color: Colors.white),
+              icon: const Icon(Icons.email, color: AppColor.white),
               labelText: 'Email',
-              labelStyle: const TextStyle(color: Colors.white),
-              hintText: 'sample@sample.com',
-              hintStyle: const TextStyle(color: Colors.white38),
+              labelStyle: const TextStyle(color: AppColor.white),
+              hintText: 'example@example.com',
+              hintStyle: TextStyle(color: AppColor.white.withOpacity(0.5)),
               errorText: snapshot.data,
             ),
-            style: const TextStyle(color: Colors.white),
+            cursorColor: AppColor.white,
+            style: const TextStyle(color: AppColor.white),
             autocorrect: false,
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
@@ -101,35 +104,34 @@ class _SignUpPageState extends State<SignUpPage> {
           return TextField(
             controller: _passwordController,
             decoration: InputDecoration(
-              icon: const Icon(Icons.lock, color: Colors.white),
+              icon: const Icon(Icons.lock, color: AppColor.white),
               labelText: 'Password',
-              labelStyle: const TextStyle(color: Colors.white),
+              labelStyle: const TextStyle(color: AppColor.white),
               errorText: snapshot.data,
             ),
-            style: const TextStyle(color: Colors.white),
+            cursorColor: AppColor.white,
+            style: const TextStyle(color: AppColor.white),
             obscureText: true,
             textInputAction: TextInputAction.done,
-            //onEditingComplete: _signInWithEmail,
+            onEditingComplete: _createUserWithEmailAndPassword,
           );
         },
       );
     }
 
     Widget _buildSignUpBtn() {
-      return Container(
-        padding:
-            EdgeInsets.symmetric(vertical: getProportionateScreenWidth(25)),
-        width: double.infinity,
-        height: getProportionateScreenHeight(100),
+      return SizedBox(
+        width: 1.sw,
+        height: 45.h,
         child: CustomButton(
           child: CustomText(
             text: 'SIGN UP',
-            textSize: getProportionateScreenWidth(18),
-            textColor: Colors.blue,
+            textSize: 18.sp,
+            textColor: AppColor.primary,
             fontWeight: FontWeight.bold,
           ),
           color: Colors.white,
-          borderRadius: 30,
+          borderRadius: 30.r,
           onPressed: _createUserWithEmailAndPassword,
         ),
       );
@@ -139,19 +141,19 @@ class _SignUpPageState extends State<SignUpPage> {
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const CustomText(
+          CustomText(
             text: "Have an account? ",
-            textSize: 18,
-            textColor: Colors.white,
+            textSize: 16.sp,
+            textColor: AppColor.white,
           ),
-          InkWell(
-            child: const CustomText(
-              text: " Login",
-              textSize: 18,
-              fontWeight: FontWeight.bold,
-              textColor: Colors.white,
-            ),
+          GestureDetector(
             onTap: () => Navigator.of(context).pop(),
+            child: CustomText(
+              text: " Login",
+              textSize: 16.sp,
+              fontWeight: FontWeight.bold,
+              textColor: AppColor.white,
+            ),
           ),
         ],
       );
@@ -159,12 +161,13 @@ class _SignUpPageState extends State<SignUpPage> {
 
     return KeyboardDismisser(
       child: Scaffold(
-        resizeToAvoidBottomInset: false,
         appBar: AppBar(
+          backgroundColor: AppColor.primary,
+          centerTitle: true,
           title: CustomText(
             text: 'Sign up',
             textColor: Colors.white,
-            textSize: getProportionateScreenWidth(20),
+            textSize: 18.sp,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -175,14 +178,14 @@ class _SignUpPageState extends State<SignUpPage> {
             return Stack(
               children: <Widget>[
                 Container(
-                  height: double.infinity,
-                  width: double.infinity,
+                  height: 1.sh,
+                  width: 1.sw,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        Colors.blue[300]!,
+                        Colors.blue[400]!,
                         Colors.blue[500]!,
                         Colors.blue[700]!,
                         Colors.blue[900]!,
@@ -192,34 +195,32 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                 ),
                 SizedBox(
-                  height: double.infinity,
-                  width: double.infinity,
+                  height: 1.sh,
+                  width: 1.sw,
                   child: SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
                     padding: EdgeInsets.symmetric(
-                      horizontal: getProportionateScreenWidth(
-                          Dimens.bigHorizontalMargin),
-                      vertical: getProportionateScreenHeight(120),
+                      horizontal: Dimens.bigHorizontalMargin,
+                      vertical: 120.h,
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         _buildFullNameTextField(),
-                        SizedBox(height: getProportionateScreenHeight(30)),
+                        SizedBox(height: 30.h),
                         _buildEmailTextField(),
-                        SizedBox(height: getProportionateScreenHeight(30)),
+                        SizedBox(height: 30.h),
                         _buildPasswordTextField(),
+                        SizedBox(height: 25.h),
                         _buildSignUpBtn(),
-                        SizedBox(height: getProportionateScreenHeight(25)),
+                        SizedBox(height: 25.h),
                         _buildLoginBtn(),
                       ],
                     ),
                   ),
                 ),
                 if (snapshot.data == true)
-                  const Center(
-                    child: CircularProgressIndicator(),
-                  ),
+                  const Center(child: CircularProgressIndicator()),
               ],
             );
           },

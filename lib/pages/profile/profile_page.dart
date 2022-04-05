@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:chat_app/blocs/profile/profile_bloc.dart';
@@ -5,7 +6,7 @@ import 'package:chat_app/components/custom_button.dart';
 import 'package:chat_app/components/custom_text.dart';
 import 'package:chat_app/constants/colors.dart';
 import 'package:chat_app/constants/dimens.dart';
-import 'package:chat_app/constants/size_config.dart';
+import 'package:chat_app/constants/strings.dart';
 import 'package:chat_app/services/auth.dart';
 import 'package:chat_app/services/database.dart';
 import 'package:chat_app/utils/get_color.dart';
@@ -13,6 +14,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 import 'package:provider/provider.dart';
@@ -43,12 +45,15 @@ class _ProfilePageState extends State<ProfilePage> {
     database = context.read<Database>();
     bloc = ProfileBloc(database: database);
     avatar = currentUser.photoURL ?? '';
+    log(avatar);
   }
 
   Future<void> onPressChangeImage() async {
     final fileSelection = await FilePicker.platform
         .pickFiles(allowMultiple: false, type: FileType.image);
+
     if (fileSelection == null) return;
+
     final path = fileSelection.files.single.path!;
     final file = File(path);
     setState(() {
@@ -58,7 +63,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final snapshot = await task!;
     final urlDownload = await snapshot.ref.getDownloadURL();
     bloc.updateAvatar(urlDownload);
-
+    currentUser.updatePhotoURL(urlDownload);
     Fluttertoast.showToast(msg: 'Update your avatar');
     setState(() {
       task = null;
@@ -72,6 +77,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void _changeName() {
+    FocusManager.instance.primaryFocus?.unfocus();
     final newName = _nameController.text.trim();
     bloc.updateName(newName);
     Fluttertoast.showToast(msg: 'Your name have been changed');
@@ -79,6 +85,11 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    _buildCameraOverlay() => Icon(
+          Icons.camera_alt_outlined,
+          size: 40,
+          color: AppColor.primary.withOpacity(0.4),
+        );
     _buildUploadStatus(UploadTask uploadTask) {
       return StreamBuilder<TaskSnapshot>(
         stream: uploadTask.snapshotEvents,
@@ -88,20 +99,10 @@ class _ProfilePageState extends State<ProfilePage> {
             final progress = snap.bytesTransferred / snap.totalBytes;
 
             return progress != 1
-                ? CircularProgressIndicator(
-                    value: progress,
-                  )
-                : Icon(
-                    Icons.camera_alt_outlined,
-                    size: 40,
-                    color: AppColor.primary.withOpacity(0.3),
-                  );
+                ? CircularProgressIndicator(value: progress)
+                : _buildCameraOverlay();
           } else {
-            return Icon(
-              Icons.camera_alt_outlined,
-              size: 40,
-              color: AppColor.primary.withOpacity(0.3),
-            );
+            return _buildCameraOverlay();
           }
         },
       );
@@ -138,17 +139,13 @@ class _ProfilePageState extends State<ProfilePage> {
                               );
                             },
                           )
-                        : Container(),
+                        : const SizedBox.shrink(),
                   ),
                 ),
                 Center(
                   child: task != null
                       ? _buildUploadStatus(task!)
-                      : Icon(
-                          Icons.camera_alt_outlined,
-                          size: 40,
-                          color: AppColor.primary.withOpacity(0.3),
-                        ),
+                      : _buildCameraOverlay(),
                 ),
               ],
             ),
@@ -163,7 +160,6 @@ class _ProfilePageState extends State<ProfilePage> {
         decoration: const InputDecoration(
           contentPadding: EdgeInsets.all(5),
         ),
-        onChanged: (value) => setState(() {}),
       );
     }
 
@@ -171,14 +167,14 @@ class _ProfilePageState extends State<ProfilePage> {
       bool isTrue = currentUser.displayName != _nameController.text &&
           _nameController.text.trim().isNotEmpty;
       return SizedBox(
-        width: double.infinity,
-        height: getProportionateScreenHeight(45),
+        width: 1.sw,
+        height: 45.h,
         child: CustomButton(
           color: AppColor.primary,
           onPressed: isTrue ? _changeName : null,
           child: CustomText(
             text: 'Change Name',
-            textSize: getProportionateScreenWidth(15),
+            textSize: 15.sp,
             textColor: AppColor.white,
             fontWeight: FontWeight.bold,
           ),
@@ -188,6 +184,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
     return KeyboardDismisser(
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0.0,
@@ -198,10 +195,8 @@ class _ProfilePageState extends State<ProfilePage> {
         body: SafeArea(
           child: Padding(
             padding: EdgeInsets.symmetric(
-              horizontal:
-                  getProportionateScreenWidth(Dimens.slightHorizontalMargin),
-              vertical:
-                  getProportionateScreenHeight(Dimens.slightVerticalMargin),
+              horizontal: Dimens.slightHorizontalMargin,
+              vertical: Dimens.slightVerticalMargin,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -211,7 +206,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   children: [
                     CustomText(
                       text: 'Name: ',
-                      textSize: getProportionateScreenWidth(15),
+                      textSize: 15.w,
                       fontWeight: FontWeight.w500,
                       textColor:
                           getSuitableColor(AppColor.black, AppColor.white),
@@ -219,23 +214,33 @@ class _ProfilePageState extends State<ProfilePage> {
                     Flexible(child: _buildNameEditing())
                   ],
                 ),
-                SizedBox(height: getProportionateScreenHeight(20)),
+                SizedBox(height: 20.h),
                 _buildChangeNameButton(),
-                SizedBox(height: getProportionateScreenHeight(20)),
+                SizedBox(height: 20.h),
                 SizedBox(
-                  width: double.infinity,
-                  height: getProportionateScreenHeight(45),
+                  width: 1.sw,
+                  height: 45.h,
                   child: CustomButton(
                     color: Colors.red,
                     onPressed: _logout,
                     child: CustomText(
                       text: 'Logout',
-                      textSize: getProportionateScreenWidth(15),
+                      textSize: 15.sp,
                       textColor: AppColor.white,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
+                SizedBox(height: 350.h),
+                Center(
+                  child: CustomText(
+                    text: 'Version: ${Strings.versionName}',
+                    textSize: 12.sp,
+                    fontWeight: FontWeight.w300,
+                    textColor:
+                        getSuitableColor(AppColor.doveGray, AppColor.wildSand),
+                  ),
+                )
               ],
             ),
           ),

@@ -1,13 +1,15 @@
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 class Dimens {
   Dimens._();
 
   //for all screens
-  static const double radius = 15;
+  static double radius = 15.r;
 
-  static const double bigHorizontalMargin = 30;
-  static const double horizontalMargin = 25;
-  static const double slightHorizontalMargin = 14;
+  static double bigHorizontalMargin = 30.w;
+  static double horizontalMargin = 25.w;
+  static double slightHorizontalMargin = 14.w;
 
-  static const double verticalMargin = 60;
-  static const double slightVerticalMargin = 30;
+  static double verticalMargin = 60.h;
+  static double slightVerticalMargin = 30.h;
 }

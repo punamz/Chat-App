@@ -1,3 +1,0 @@
-class AppTextStyle {
-  AppTextStyle._();
-}

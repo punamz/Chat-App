@@ -1,12 +1,13 @@
 import 'package:chat_app/blocs/login/login_bloc.dart';
 import 'package:chat_app/components/custom_button.dart';
 import 'package:chat_app/components/custom_text.dart';
+import 'package:chat_app/constants/colors.dart';
 import 'package:chat_app/constants/dimens.dart';
-import 'package:chat_app/constants/size_config.dart';
 import 'package:chat_app/pages/sign_up/sign_up_page.dart';
 import 'package:chat_app/services/auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 
@@ -24,6 +25,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
 
   Future<void> _signInWithEmail() async {
+    FocusManager.instance.primaryFocus?.unfocus();
     try {
       await bloc.signInWithEmail(
           _emailController.text, _passwordController.text);
@@ -32,7 +34,7 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  void _signUp(BuildContext context) {
+  void _signUp() {
     Navigator.of(context).push(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
@@ -57,86 +59,95 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   @override
+  void dispose() {
+    // TODO: implement dispose
+    bloc.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    Widget _buildEmailTextField() {
+    _buildEmailTextField() {
       return StreamBuilder<String?>(
-          stream: bloc.emailStream,
-          builder: (context, snapshot) {
-            return TextField(
-              controller: _emailController,
-              decoration: InputDecoration(
-                icon: const Icon(Icons.email, color: Colors.white),
-                labelText: 'Email',
-                labelStyle: const TextStyle(color: Colors.white),
-                hintText: 'sample@sample.com',
-                hintStyle: const TextStyle(color: Colors.white38),
-                errorText: snapshot.data,
-              ),
-              style: const TextStyle(color: Colors.white),
-              autocorrect: false,
-              keyboardType: TextInputType.emailAddress,
-              textInputAction: TextInputAction.next,
-            );
-          });
+        stream: bloc.emailStream,
+        builder: (context, snapshot) {
+          return TextField(
+            controller: _emailController,
+            decoration: InputDecoration(
+              icon: const Icon(Icons.email, color: AppColor.white),
+              labelText: 'Email',
+              labelStyle: const TextStyle(color: AppColor.white),
+              hintText: 'example@example.com',
+              hintStyle: TextStyle(color: AppColor.white.withOpacity(0.5)),
+              errorText: snapshot.data,
+            ),
+            cursorColor: AppColor.white,
+            style: const TextStyle(color: AppColor.white),
+            autocorrect: false,
+            keyboardType: TextInputType.emailAddress,
+            textInputAction: TextInputAction.next,
+          );
+        },
+      );
     }
 
-    Widget _buildPasswordTextField() {
+    _buildPasswordTextField() {
       return StreamBuilder<String?>(
-          stream: bloc.passwordStream,
-          builder: (context, snapshot) {
-            return TextField(
-              controller: _passwordController,
-              decoration: InputDecoration(
-                icon: const Icon(Icons.lock, color: Colors.white),
-                labelText: 'Password',
-                labelStyle: const TextStyle(color: Colors.white),
-                errorText: snapshot.data,
-              ),
-              style: const TextStyle(color: Colors.white),
-              obscureText: true,
-              textInputAction: TextInputAction.done,
-              //onEditingComplete: _signInWithEmail,
-            );
-          });
+        stream: bloc.passwordStream,
+        builder: (context, snapshot) {
+          return TextField(
+            controller: _passwordController,
+            decoration: InputDecoration(
+              icon: const Icon(Icons.lock, color: AppColor.white),
+              labelText: 'Password',
+              labelStyle: const TextStyle(color: AppColor.white),
+              errorText: snapshot.data,
+            ),
+            style: const TextStyle(color: AppColor.white),
+            cursorColor: AppColor.white,
+            obscureText: true,
+            textInputAction: TextInputAction.done,
+            onEditingComplete: _signInWithEmail,
+          );
+        },
+      );
     }
 
     Widget _buildLoginBtn() {
-      return Container(
-        padding:
-            EdgeInsets.symmetric(vertical: getProportionateScreenWidth(25)),
-        width: double.infinity,
-        height: getProportionateScreenHeight(100),
+      return SizedBox(
+        width: 1.sw,
+        height: 45.h,
         child: CustomButton(
           child: CustomText(
             text: 'LOGIN',
-            textSize: getProportionateScreenWidth(18),
-            textColor: Colors.blue,
+            textSize: 18.sp,
+            textColor: AppColor.primary,
             fontWeight: FontWeight.bold,
           ),
-          color: Colors.white,
-          borderRadius: 30,
+          color: AppColor.white,
+          borderRadius: 25.r,
           onPressed: _signInWithEmail,
         ),
       );
     }
 
-    Widget _buildSignUpBtn() {
+    _buildSignUpBtn() {
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const CustomText(
+          CustomText(
             text: "Don't have an account? ",
-            textSize: 18,
-            textColor: Colors.white,
+            textSize: 16.sp,
+            textColor: AppColor.white,
           ),
-          InkWell(
-            child: const CustomText(
+          GestureDetector(
+            child: CustomText(
               text: " Sign Up",
-              textSize: 18,
+              textSize: 16.sp,
               fontWeight: FontWeight.bold,
-              textColor: Colors.white,
+              textColor: AppColor.white,
             ),
-            onTap: () => _signUp(context),
+            onTap: _signUp,
           ),
         ],
       );
@@ -152,8 +163,8 @@ class _LoginPageState extends State<LoginPage> {
             return Stack(
               children: <Widget>[
                 Container(
-                  height: double.infinity,
-                  width: double.infinity,
+                  height: 1.sh,
+                  width: 1.sw,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
@@ -164,35 +175,35 @@ class _LoginPageState extends State<LoginPage> {
                         Colors.blue[700]!,
                         Colors.blue[900]!,
                       ],
-                      stops: const [0.1, 0.3, 0.6, 0.9],
+                      stops: const [0.1, 0.2, 0.5, 0.9],
                     ),
                   ),
                 ),
                 SizedBox(
-                  height: double.infinity,
-                  width: double.infinity,
+                  height: 1.sh,
+                  width: 1.sw,
                   child: SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
                     padding: EdgeInsets.symmetric(
-                      horizontal: getProportionateScreenWidth(
-                          Dimens.bigHorizontalMargin),
-                      vertical: getProportionateScreenHeight(120),
+                      horizontal: Dimens.bigHorizontalMargin,
+                      vertical: 120.h,
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         CustomText(
                           text: 'Sign in',
-                          textColor: Colors.white,
-                          textSize: getProportionateScreenWidth(30),
+                          textColor: AppColor.white,
+                          textSize: 30.w,
                           fontWeight: FontWeight.bold,
                         ),
-                        SizedBox(height: getProportionateScreenHeight(50)),
+                        SizedBox(height: 50.h),
                         _buildEmailTextField(),
-                        SizedBox(height: getProportionateScreenHeight(30)),
+                        SizedBox(height: 25.h),
                         _buildPasswordTextField(),
+                        SizedBox(height: 25.h),
                         _buildLoginBtn(),
-                        SizedBox(height: getProportionateScreenHeight(25)),
+                        SizedBox(height: 50.h),
                         _buildSignUpBtn(),
                       ],
                     ),

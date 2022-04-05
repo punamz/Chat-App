@@ -29,4 +29,12 @@ class UserInfo {
       msgToken: document.get('msgToken').cast<String>(),
     );
   }
+  factory UserInfo.fromJson(Map<String, dynamic> json) {
+    return UserInfo(
+      id: json['id'],
+      name: json['name'],
+      photoURL: json['photoURL'],
+      msgToken: json['msgToken'].cast<String>(),
+    );
+  }
 }

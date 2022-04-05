@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:chat_app/models/message.dart';
@@ -91,12 +90,19 @@ class ChatBloc {
         'android_channel_id': '02862582324',
         'click_action': 'FLUTTER_NOTIFICATION_CLICK',
         'image': type == imageType ? message : null,
-        'sound': 'enable'
+        'sound': 'enable',
       },
       'priority': 'high',
       'data': {
         'page': 'ChatPage',
-        'arguments': {'userInfo': receiver.toMap()},
+        'arguments': {
+          'userInfo': {
+            'id': sender.uid,
+            'name': sender.displayName,
+            'photoURL': sender.photoURL,
+            'msgToken': [currentDeviceMsgToken],
+          }
+        },
       },
       'registration_ids': msgToken,
       'apns': {

@@ -1,10 +1,11 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:chat_app/blocs/home/home_bloc.dart';
 import 'package:chat_app/components/custom_text.dart';
 import 'package:chat_app/constants/colors.dart';
 import 'package:chat_app/constants/dimens.dart';
-import 'package:chat_app/constants/size_config.dart';
+import 'package:chat_app/main.dart';
 import 'package:chat_app/models/user.dart';
 import 'package:chat_app/pages/chat/chat_page.dart';
 import 'package:chat_app/pages/profile/profile_page.dart';
@@ -14,11 +15,21 @@ import 'package:chat_app/services/notification.dart';
 import 'package:chat_app/utils/get_color.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  HomePage._();
+
+  static HomePage instance = HomePage._();
+
+  factory HomePage() => instance;
+
+  // HomePage({Key? key}) : super(key: key);
+
+  late Function({required UserInfo userInfo}) goPage;
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -35,10 +46,23 @@ class _HomePageState extends State<HomePage> {
     // TODO: implement initState
     super.initState();
     bloc = HomeBloc(database: context.read<Database>());
+    widget.goPage = onPressUser;
+
+    /// handle if initMsg not null
+    /// => navigate to chat page
+    if (initMsg != null) {
+      SchedulerBinding.instance?.addPostFrameCallback((_) {
+        final json = initMsg!.data;
+        final userInfo =
+            UserInfo.fromJson(jsonDecode(json['arguments'])['userInfo']);
+        onPressUser(userInfo: userInfo);
+      });
+    }
   }
 
-  Future<void> onPressUser(UserInfo userInfo) async {
+  void onPressUser({required UserInfo userInfo}) {
     final NotificationBase notification = context.read<NotificationBase>();
+    // Navigator.of(context).popUntil((route) => route.isFirst);
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -70,10 +94,9 @@ class _HomePageState extends State<HomePage> {
     _buildSearchUser() {
       return Container(
         margin: EdgeInsets.symmetric(
-          horizontal:
-              getProportionateScreenWidth(Dimens.slightHorizontalMargin),
+          horizontal: Dimens.slightHorizontalMargin,
         ),
-        height: getProportionateScreenHeight(50),
+        height: 50.h,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(Dimens.radius),
           color: getSuitableColor(AppColor.wildSand, AppColor.mineShaft),
@@ -81,13 +104,13 @@ class _HomePageState extends State<HomePage> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(width: getProportionateScreenWidth(10)),
+            SizedBox(width: 10.w),
             Icon(
               Icons.search,
               color: AppColor.doveGray,
-              size: getProportionateScreenWidth(20),
+              size: 20.w,
             ),
-            SizedBox(width: getProportionateScreenWidth(10)),
+            SizedBox(width: 10.w),
             Expanded(
               child: TextField(
                 controller: searchUser,
@@ -106,7 +129,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   hintText: 'Search',
                   hintStyle: TextStyle(
-                    fontSize: getProportionateScreenWidth(14),
+                    fontSize: 14.w,
                     color: AppColor.doveGray,
                   ),
                 ),
@@ -119,27 +142,24 @@ class _HomePageState extends State<HomePage> {
 
     Widget _buildUserCard(BuildContext context, UserInfo user) {
       return Container(
-        // shape: RoundedRectangleBorder(
-        //   borderRadius: BorderRadius.circular(Dimens.radius),
-        // ),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(Dimens.radius),
           color: getSuitableColor(AppColor.wildSand, AppColor.mineShaft),
         ),
         margin: EdgeInsets.symmetric(
-          horizontal: getProportionateScreenWidth(5),
-          vertical: getProportionateScreenHeight(5),
+          horizontal: 5.w,
+          vertical: 5.h,
         ),
         child: ListTile(
           contentPadding: EdgeInsets.symmetric(
-            horizontal: getProportionateScreenWidth(16),
-            vertical: getProportionateScreenHeight(5),
+            horizontal: 16.w,
+            vertical: 5.h,
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(Dimens.radius),
           ),
           tileColor: getSuitableColor(AppColor.wildSand, AppColor.mineShaft),
-          onTap: () => onPressUser(user),
+          onTap: () => onPressUser(userInfo: user),
           leading: Material(
             borderRadius: const BorderRadius.all(Radius.circular(25)),
             clipBehavior: Clip.hardEdge,
@@ -177,7 +197,7 @@ class _HomePageState extends State<HomePage> {
           ),
           title: CustomText(
             text: user.name,
-            textSize: getProportionateScreenWidth(16),
+            textSize: 16.w,
             fontWeight: FontWeight.w600,
             textColor: getSuitableColor(AppColor.black, AppColor.white),
           ),
@@ -283,7 +303,7 @@ class _HomePageState extends State<HomePage> {
         appBar: AppBar(
           title: CustomText(
             text: 'Chat App',
-            textSize: getProportionateScreenWidth(18),
+            textSize: 18.w,
             textColor: AppColor.white,
           ),
           centerTitle: true,
@@ -330,7 +350,7 @@ class _HomePageState extends State<HomePage> {
         body: SafeArea(
           child: Column(
             children: [
-              SizedBox(height: getProportionateScreenHeight(10)),
+              SizedBox(height: 10.h),
               _buildSearchUser(),
               _buildBody(),
             ],

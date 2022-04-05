@@ -131,6 +131,7 @@ class FireStoreDatabase implements Database {
 
   @override
   void addMsgToken({required String? token}) {
+    if (token == null) return;
     final path = APIPath.user(uid);
     final documentReference = FirebaseFirestore.instance.doc(path);
     documentReference.update({

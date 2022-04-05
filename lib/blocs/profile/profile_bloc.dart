@@ -13,8 +13,9 @@ class ProfileBloc {
   ProfileBloc({required this.database});
 
   UploadTask? uploadFile(File file) {
+    final currentUser = Auth().currentUser!;
     final fileName = basename(file.path);
-    final destination = 'files/$fileName';
+    final destination = 'avatar/${currentUser.uid}/$fileName';
     return StorageDatabase.uploadFile(destination, file);
   }
 

@@ -1,5 +1,7 @@
-import 'dart:developer';
+import 'dart:convert';
 
+import 'package:chat_app/models/user.dart';
+import 'package:chat_app/pages/home/home_page.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -28,11 +30,9 @@ class FirebaseNotification implements NotificationBase {
 
   @override
   Future initialize() async {
-    _firebaseMessaging.getToken().then(
-      (value) {
-        return currentDeviceMsgToken = value ?? "";
-      },
-    );
+    _firebaseMessaging
+        .getToken()
+        .then((value) => currentDeviceMsgToken = value ?? "");
 
     await _firebaseMessaging.requestPermission(
       alert: true,
@@ -65,6 +65,19 @@ class FirebaseNotification implements NotificationBase {
         badge: true,
         sound: true,
       );
+      await flutterLocalNotificationsPlugin.initialize(
+        const InitializationSettings(
+          android: AndroidInitializationSettings('mipmap/ic_launcher'),
+        ),
+        onSelectNotification: (String? payload) async {
+          if (payload != null) {
+            final json = jsonDecode(payload);
+            final user =
+                UserInfo.fromJson(jsonDecode(json['arguments'])['userInfo']);
+            HomePage().goPage(userInfo: user);
+          }
+        },
+      );
     }
 
     FirebaseMessaging.onMessage.listen((message) {
@@ -72,22 +85,25 @@ class FirebaseNotification implements NotificationBase {
       AndroidNotification? android = message.notification?.android;
       if (notification != null && android != null && !kIsWeb) {
         flutterLocalNotificationsPlugin.show(
-          notification.hashCode,
-          notification.title,
-          notification.body,
-          NotificationDetails(
-            android: AndroidNotificationDetails(
-              channel.id,
-              channel.name,
-              channelDescription: channel.description,
-              icon: 'mipmap/ic_launcher',
+            notification.hashCode,
+            notification.title,
+            notification.body,
+            NotificationDetails(
+              android: AndroidNotificationDetails(
+                channel.id,
+                channel.name,
+                channelDescription: channel.description,
+                icon: 'mipmap/ic_launcher',
+              ),
             ),
-          ),
-        );
+            payload: jsonEncode(message.data));
       }
     });
+
     FirebaseMessaging.onMessageOpenedApp.listen((message) {
-      log(message.data.toString());
+      final json = message.data;
+      final user = UserInfo.fromJson(jsonDecode(json['arguments'])['userInfo']);
+      HomePage().goPage(userInfo: user);
     });
   }
 
