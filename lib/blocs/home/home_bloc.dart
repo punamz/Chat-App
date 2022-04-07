@@ -1,4 +1,5 @@
 import 'package:chat_app/models/user.dart';
+import 'package:chat_app/services/auth.dart';
 import 'package:chat_app/services/database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -7,8 +8,21 @@ class HomeBloc {
 
   HomeBloc({required this.database});
 
-  Stream<QuerySnapshot> findUserStream(String textSearch) =>
-      database.userStream(textSearch: textSearch);
+  Stream<List<UserInfo>> findUserStream(String textSearch) async* {
+    final List<UserInfo> usersInfo = [];
+    final currentUser = Auth().currentUser;
+    database.userStream(textSearch: textSearch).listen((event) {
+      final data = event.docs;
+      usersInfo.clear();
+      for (var user in data) {
+        if (true) {
+          usersInfo.add(UserInfo.fromDocument(user));
+        }
+      }
+    });
+
+    yield usersInfo;
+  }
 
   Stream<QuerySnapshot> getChatStream() => database.chatStream();
 

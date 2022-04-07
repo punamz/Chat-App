@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class CustomText extends StatelessWidget {
   final String text;
   final double? textSize;
-  final Color textColor;
+  final Color? textColor;
   final FontWeight fontWeight;
   final TextAlign textAlign;
   final double height;
@@ -13,7 +13,7 @@ class CustomText extends StatelessWidget {
     Key? key,
     this.text = '',
     this.textSize,
-    this.textColor = Colors.black,
+    this.textColor,
     this.fontWeight = FontWeight.normal,
     this.textAlign = TextAlign.start,
     this.height = 1,
@@ -25,7 +25,7 @@ class CustomText extends StatelessWidget {
       text,
       textAlign: textAlign,
       style: TextStyle(
-        fontSize: textSize ?? 15.w,
+        fontSize: textSize ?? 15.sp,
         fontWeight: fontWeight,
         color: textColor,
         height: height,

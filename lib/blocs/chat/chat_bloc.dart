@@ -13,7 +13,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class ChatBloc {
   final Database database;
@@ -117,14 +116,14 @@ class ChatBloc {
   void likeMessage(Message message) =>
       database.updateLikeMessage(message: message);
 
-  UploadTask? uploadFile(File file) {
+  UploadTask? uploadFile(File file, String chatID) {
     final fileName = basename(file.path);
-    final destination = 'files/$fileName';
+    final destination =
+        'files/$chatID/$fileName-at-${DateTime.now().millisecondsSinceEpoch}';
     return StorageDatabase.uploadFile(destination, file);
   }
 
   Future<String> downloadFile(String filename, String url) async {
-    await Permission.storage.request();
     Dio dio = Dio();
     String dir = "";
     if (Platform.isAndroid) {

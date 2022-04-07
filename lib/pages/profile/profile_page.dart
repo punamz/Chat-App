@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:chat_app/blocs/profile/profile_bloc.dart';
@@ -7,6 +6,7 @@ import 'package:chat_app/components/custom_text.dart';
 import 'package:chat_app/constants/colors.dart';
 import 'package:chat_app/constants/dimens.dart';
 import 'package:chat_app/constants/strings.dart';
+import 'package:chat_app/pages/profile/component/avatar.dart';
 import 'package:chat_app/services/auth.dart';
 import 'package:chat_app/services/database.dart';
 import 'package:chat_app/utils/get_color.dart';
@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -45,10 +46,51 @@ class _ProfilePageState extends State<ProfilePage> {
     database = context.read<Database>();
     bloc = ProfileBloc(database: database);
     avatar = currentUser.photoURL ?? '';
-    log(avatar);
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
   }
 
   Future<void> onPressChangeImage() async {
+    var locationPermissionStatus = await Permission.storage.request();
+    switch (locationPermissionStatus) {
+
+      /// ok, had permission
+      case PermissionStatus.granted:
+        break;
+
+      /// user denied
+      case PermissionStatus.permanentlyDenied:
+        bool? confirm = await showDialog<bool>(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => AlertDialog(
+            title: const Text("Permission denied "),
+            content: const Text(
+                'Without this permission, the app is unable access to your gallery to select picture.Do you want to enable this permission'),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text('Cancel')),
+              // The "Yes" button
+              TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text('Yes')),
+            ],
+          ),
+        );
+        if (confirm!) {
+          openAppSettings();
+        }
+        break;
+      default:
+        return;
+    }
+
+    /// Pick and handle file
     final fileSelection = await FilePicker.platform
         .pickFiles(allowMultiple: false, type: FileType.image);
 
@@ -118,29 +160,7 @@ class _ProfilePageState extends State<ProfilePage> {
             child: Stack(
               children: <Widget>[
                 Center(
-                  child: Material(
-                    borderRadius: const BorderRadius.all(Radius.circular(50)),
-                    clipBehavior: Clip.hardEdge,
-                    child: avatar.isNotEmpty
-                        ? Image.network(
-                            avatar,
-                            width: 100,
-                            height: 100,
-                            fit: BoxFit.cover,
-                            loadingBuilder: (BuildContext context, Widget child,
-                                ImageChunkEvent? loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return CircularProgressIndicator(
-                                value: loadingProgress.expectedTotalBytes !=
-                                        null
-                                    ? loadingProgress.cumulativeBytesLoaded /
-                                        loadingProgress.expectedTotalBytes!
-                                    : null,
-                              );
-                            },
-                          )
-                        : const SizedBox.shrink(),
-                  ),
+                  child: Avatar(avatar: avatar),
                 ),
                 Center(
                   child: task != null
@@ -160,6 +180,7 @@ class _ProfilePageState extends State<ProfilePage> {
         decoration: const InputDecoration(
           contentPadding: EdgeInsets.all(5),
         ),
+        onChanged: (value) => setState(() {}),
       );
     }
 
@@ -206,7 +227,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   children: [
                     CustomText(
                       text: 'Name: ',
-                      textSize: 15.w,
+                      textSize: 16.sp,
                       fontWeight: FontWeight.w500,
                       textColor:
                           getSuitableColor(AppColor.black, AppColor.white),

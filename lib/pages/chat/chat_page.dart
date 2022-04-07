@@ -1,19 +1,21 @@
 import 'dart:io';
 
+import 'package:bubble/bubble.dart';
 import 'package:chat_app/blocs/chat/chat_bloc.dart';
+import 'package:chat_app/components/custom_dialog.dart';
 import 'package:chat_app/components/custom_text.dart';
 import 'package:chat_app/components/video_player.dart';
 import 'package:chat_app/constants/colors.dart';
 import 'package:chat_app/constants/dimens.dart';
 import 'package:chat_app/models/message.dart';
 import 'package:chat_app/models/user.dart';
+import 'package:chat_app/pages/chat/component/chat_bubble.dart';
 import 'package:chat_app/services/auth.dart';
 import 'package:chat_app/services/database.dart';
 import 'package:chat_app/services/notification.dart';
 import 'package:chat_app/utils/get_chat_id.dart';
 import 'package:chat_app/utils/get_color.dart';
 import 'package:chat_app/utils/kind_of_file.dart';
-import 'package:chat_app/utils/time_format.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -21,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 class ChatPage extends StatefulWidget {
@@ -43,36 +46,89 @@ class _ChatPageState extends State<ChatPage> {
   UploadTask? task;
 
   Future<void> _onPressSendImage() async {
-    final fileSelection = await FilePicker.platform
-        .pickFiles(allowMultiple: false, type: FileType.media);
-    if (fileSelection == null) return;
-    final path = fileSelection.files.single.path!;
-    int type = checkTypeOfFile(path);
-    final file = File(path);
-    task = bloc.uploadFile(file);
-    setState(() {});
-    final snapshot = await task!;
-    final urlDownload = await snapshot.ref.getDownloadURL();
+    var locationPermissionStatus = await Permission.storage.request();
+    switch (locationPermissionStatus) {
 
-    _sendMessage(type: type, fileName: urlDownload);
+      /// ok, had permission
+      case PermissionStatus.granted:
+
+        /// handle pick and send file
+        final fileSelection = await FilePicker.platform
+            .pickFiles(allowMultiple: false, type: FileType.media);
+        if (fileSelection == null) return;
+        final path = fileSelection.files.single.path!;
+        int type = checkTypeOfFile(path);
+        final file = File(path);
+        task = bloc.uploadFile(file, chatId);
+        setState(() {});
+        final snapshot = await task!;
+        final urlDownload = await snapshot.ref.getDownloadURL();
+
+        _sendMessage(type: type, fileName: urlDownload);
+
+        break;
+
+      /// user denied
+      case PermissionStatus.permanentlyDenied:
+        bool? confirm = await customDialog(
+          context: context,
+          title: 'Permission denied',
+          content:
+              'Without this permission, the app is unable access to your gallery to select media. Do you want to enable this permission',
+          defaultActionText: 'Yes',
+          cancerActionText: 'Cancel',
+        );
+        if (confirm!) {
+          openAppSettings();
+        }
+        break;
+      default:
+        break;
+    }
   }
 
   Future<void> _onPressSendFile() async {
-    final fileSelection =
-        await FilePicker.platform.pickFiles(allowMultiple: false);
-    if (fileSelection == null) return;
-    final path = fileSelection.files.single.path!;
-    final file = File(path);
-    int type = checkTypeOfFile(path);
-    task = bloc.uploadFile(file);
-    setState(() {});
-    final snapshot = await task!;
-    final urlDownload = await snapshot.ref.getDownloadURL();
+    var permissionStatus = await Permission.storage.request();
+    switch (permissionStatus) {
 
-    type == fileType
-        ? _sendMessage(
-            type: type, fileName: path.split('/').last, url: urlDownload)
-        : _sendMessage(type: type, fileName: urlDownload);
+      /// ok, had permission
+      case PermissionStatus.granted:
+
+        /// pick and handle
+        final fileSelection =
+            await FilePicker.platform.pickFiles(allowMultiple: false);
+        if (fileSelection == null) return;
+        final path = fileSelection.files.single.path!;
+        final file = File(path);
+        int type = checkTypeOfFile(path);
+        task = bloc.uploadFile(file, chatId);
+        setState(() {});
+        final snapshot = await task!;
+        final urlDownload = await snapshot.ref.getDownloadURL();
+
+        type == fileType
+            ? _sendMessage(
+                type: type, fileName: path.split('/').last, url: urlDownload)
+            : _sendMessage(type: type, fileName: urlDownload);
+        break;
+
+      /// user denied
+      case PermissionStatus.permanentlyDenied:
+        bool? confirm = await customDialog(
+          context: context,
+          title: 'Permission denied',
+          content:
+              'Without this permission, the app is unable access to your storage to get file. Do you want to enable this permission',
+          defaultActionText: 'Yes',
+          cancerActionText: 'Cancel',
+        );
+        if (confirm!) {
+          openAppSettings();
+        }
+        break;
+      default:
+        break;
+    }
   }
 
   void _sendMessage({required int type, String? fileName, String? url}) {
@@ -104,14 +160,36 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  void _onPressLikeMessage(Message message) {
-    bloc.likeMessage(message);
-  }
+  void _onPressLikeMessage(Message message) => bloc.likeMessage(message);
 
   Future<void> _downloadFile(String fileName, String url) async {
-    Fluttertoast.showToast(msg: 'Start download file $fileName');
-    final filepath = await bloc.downloadFile(fileName, url);
-    Fluttertoast.showToast(msg: 'Downloaded!\n$filepath');
+    var locationPermissionStatus = await Permission.storage.request();
+    switch (locationPermissionStatus) {
+
+      /// ok, had permission
+      case PermissionStatus.granted:
+        Fluttertoast.showToast(msg: 'Start download file $fileName');
+        final filepath = await bloc.downloadFile(fileName, url);
+        Fluttertoast.showToast(msg: 'Downloaded!\n$filepath');
+        break;
+
+      /// user denied
+      case PermissionStatus.permanentlyDenied:
+        bool? confirm = await customDialog(
+          context: context,
+          title: 'Permission denied',
+          content:
+              'Without this permission, the app is unable access to your storage to download this file. Do you want to enable this permission',
+          defaultActionText: 'Yes',
+          cancerActionText: 'Cancel',
+        );
+        if (confirm!) {
+          openAppSettings();
+        }
+        break;
+      default:
+        break;
+    }
   }
 
   _scrollListener() {
@@ -138,168 +216,15 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
-    super.dispose();
     bloc.dispose();
+    textInputController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    _buildContentOfMessage(Message message) {
-      bool isMe = message.sendBy == currentUser!.uid;
-      switch (message.type) {
-        case messageType:
-          return Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Flexible(
-                    child: CustomText(
-                      text: message.message,
-                      textColor: isMe
-                          ? AppColor.white
-                          : getSuitableColor(AppColor.black, AppColor.white),
-                    ),
-                  )
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  CustomText(
-                    text: dayFormat(message.timestamp),
-                    textSize: 10.w,
-                    fontWeight: FontWeight.w200,
-                    textColor: isMe
-                        ? AppColor.black
-                        : getSuitableColor(AppColor.black, AppColor.white),
-                  )
-                ],
-              )
-            ],
-          );
-        case imageType:
-          return Column(
-            children: [
-              Image.network(
-                message.message,
-                fit: BoxFit.cover,
-                loadingBuilder: (BuildContext context, Widget child,
-                    ImageChunkEvent? loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Center(
-                    child: CircularProgressIndicator(
-                      value: loadingProgress.expectedTotalBytes != null
-                          ? loadingProgress.cumulativeBytesLoaded /
-                              loadingProgress.expectedTotalBytes!
-                          : null,
-                    ),
-                  );
-                },
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  CustomText(
-                    text: dayFormat(message.timestamp),
-                    textSize: 10.w,
-                    fontWeight: FontWeight.w200,
-                    textColor: getSuitableColor(AppColor.black, AppColor.white),
-                  )
-                ],
-              )
-            ],
-          );
-        case videoType:
-          {
-            return Column(
-              children: [
-                VideoPlayer(videoUrl: message.message),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    CustomText(
-                      text: dayFormat(message.timestamp),
-                      textSize: 10.w,
-                      fontWeight: FontWeight.w200,
-                      textColor:
-                          getSuitableColor(AppColor.black, AppColor.white),
-                    )
-                  ],
-                )
-              ],
-            );
-          }
-        case fileType:
-          return GestureDetector(
-            onTap: () => _downloadFile(message.message, message.url!),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Icon(
-                      Icons.download_rounded,
-                      color: isMe
-                          ? AppColor.white
-                          : getSuitableColor(AppColor.black, AppColor.white),
-                    ),
-                    SizedBox(width: 10.w),
-                    Flexible(
-                      child: CustomText(
-                        text: message.message,
-                        textColor: AppColor.white,
-                      ),
-                    )
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    CustomText(
-                      text: dayFormat(message.timestamp),
-                      textSize: 10.w,
-                      fontWeight: FontWeight.w200,
-                    )
-                  ],
-                )
-              ],
-            ),
-          );
-        default:
-          return const SizedBox.shrink();
-      }
-    }
-
     _buildMessageItem(Message message) {
       bool isMe = message.sendBy == currentUser!.uid;
-
-      final msg = Container(
-          margin: EdgeInsets.only(
-            left: isMe ? 50.w : 0,
-          ),
-          padding: EdgeInsets.symmetric(
-            horizontal: 15.w,
-            vertical: message.type == 1 || message.type == 4 ? 10.h : 0,
-          ),
-          decoration: BoxDecoration(
-            color: message.type == messageType || message.type == fileType
-                ? isMe
-                    ? AppColor.primary
-                    : AppColor.doveGray.withOpacity(0.3)
-                : Colors.transparent,
-            borderRadius: isMe
-                ? BorderRadius.only(
-                    topLeft: Radius.circular(Dimens.radius),
-                    bottomLeft: Radius.circular(Dimens.radius),
-                  )
-                : BorderRadius.only(
-                    topRight: Radius.circular(Dimens.radius),
-                    bottomRight: Radius.circular(Dimens.radius),
-                  ),
-          ),
-          child: _buildContentOfMessage(message));
 
       return Stack(
         children: [
@@ -308,7 +233,13 @@ class _ChatPageState extends State<ChatPage> {
             child: Row(
               mainAxisSize: MainAxisSize.max,
               children: [
-                Expanded(child: msg),
+                Expanded(
+                    child: ChatBubble(
+                  message: message,
+                  isMe: isMe,
+                  downloadFile: () =>
+                      _downloadFile(message.message, message.url!),
+                )),
                 if (!isMe)
                   IconButton(
                     onPressed: () => _onPressLikeMessage(message),
@@ -459,7 +390,7 @@ class _ChatPageState extends State<ChatPage> {
           title: CustomText(
             text: widget.userInfo.name,
             textColor: AppColor.white,
-            textSize: 17.w,
+            textSize: 18.sp,
           ),
         ),
         body: Column(
