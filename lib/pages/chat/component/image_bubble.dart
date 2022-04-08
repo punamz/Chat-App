@@ -1,7 +1,7 @@
 import 'package:chat_app/components/custom_text.dart';
 import 'package:chat_app/constants/colors.dart';
-import 'package:chat_app/constants/dimens.dart';
 import 'package:chat_app/models/message.dart';
+import 'package:chat_app/pages/chat/component/image_viewer.dart';
 import 'package:chat_app/utils/get_color.dart';
 import 'package:chat_app/utils/time_format.dart';
 import 'package:flutter/material.dart';
@@ -24,23 +24,32 @@ class ImageBubble extends StatelessWidget {
       ),
       child: Column(
         children: [
-          ConstrainedBox(
-            constraints: BoxConstraints(maxHeight: 0.5.sh, minWidth: 1.sw),
-            child: Image.network(
-              message.message,
-              fit: BoxFit.cover,
-              loadingBuilder: (BuildContext context, Widget child,
-                  ImageChunkEvent? loadingProgress) {
-                if (loadingProgress == null) return child;
-                return Center(
-                  child: CircularProgressIndicator(
-                    value: loadingProgress.expectedTotalBytes != null
-                        ? loadingProgress.cumulativeBytesLoaded /
-                            loadingProgress.expectedTotalBytes!
-                        : null,
-                  ),
-                );
-              },
+          GestureDetector(
+            onTap: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => ImageViewer(url: message.message)));
+            },
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxHeight: 0.5.sh, minWidth: 1.sw),
+              child: Hero(
+                tag: message.message,
+                child: Image.network(
+                  message.message,
+                  fit: BoxFit.cover,
+                  loadingBuilder: (BuildContext context, Widget child,
+                      ImageChunkEvent? loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Center(
+                      child: CircularProgressIndicator(
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded /
+                                loadingProgress.expectedTotalBytes!
+                            : null,
+                      ),
+                    );
+                  },
+                ),
+              ),
             ),
           ),
           Row(

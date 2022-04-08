@@ -1,10 +1,8 @@
 import 'dart:io';
 
-import 'package:bubble/bubble.dart';
 import 'package:chat_app/blocs/chat/chat_bloc.dart';
 import 'package:chat_app/components/custom_dialog.dart';
 import 'package:chat_app/components/custom_text.dart';
-import 'package:chat_app/components/video_player.dart';
 import 'package:chat_app/constants/colors.dart';
 import 'package:chat_app/constants/dimens.dart';
 import 'package:chat_app/models/message.dart';
@@ -234,12 +232,13 @@ class _ChatPageState extends State<ChatPage> {
               mainAxisSize: MainAxisSize.max,
               children: [
                 Expanded(
-                    child: ChatBubble(
-                  message: message,
-                  isMe: isMe,
-                  downloadFile: () =>
-                      _downloadFile(message.message, message.url!),
-                )),
+                  child: ChatBubble(
+                    message: message,
+                    isMe: isMe,
+                    downloadFile: () =>
+                        _downloadFile(message.message, message.url!),
+                  ),
+                ),
                 if (!isMe)
                   IconButton(
                     onPressed: () => _onPressLikeMessage(message),
@@ -289,6 +288,7 @@ class _ChatPageState extends State<ChatPage> {
                   itemCount: messageList.length,
                   reverse: true,
                   controller: messageListScrollController,
+                  addAutomaticKeepAlives: true,
                 );
               } else {
                 return Container();
@@ -354,7 +354,8 @@ class _ChatPageState extends State<ChatPage> {
               final percentage = (progress * 100).toStringAsFixed(2);
               return percentage.compareTo('100.00') != 0
                   ? CustomText(
-                      text: 'Sending file... $percentage %',
+                      text:
+                          'Sending file...${(snap.bytesTransferred / 1000000).toStringAsFixed(2)}/${(snap.totalBytes / 1000000).toStringAsFixed(2)}MB ($percentage%)',
                       textColor:
                           getSuitableColor(AppColor.black, AppColor.white),
                     )
@@ -396,9 +397,7 @@ class _ChatPageState extends State<ChatPage> {
         body: Column(
           children: [
             _buildMessageList(),
-            task != null
-                ? _buildSendFileStatus(task!)
-                : const SizedBox.shrink(),
+            if (task != null) _buildSendFileStatus(task!),
             _buildDownloadStatus(),
             _buildInput(),
           ],
