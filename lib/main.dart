@@ -1,3 +1,5 @@
+import 'package:chat_app/constants/app_theme.dart';
+import 'package:chat_app/constants/strings.dart';
 import 'package:chat_app/pages/landing_page.dart';
 import 'package:chat_app/services/auth.dart';
 import 'package:chat_app/services/notification.dart';
@@ -5,9 +7,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-import 'constants/app_theme.dart';
-import 'constants/strings.dart';
 
 RemoteMessage? initMsg;
 

@@ -67,7 +67,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    _buildEmailTextField() {
+    Widget _buildEmailTextField() {
       return StreamBuilder<String?>(
         stream: bloc.emailStream,
         builder: (context, snapshot) {
@@ -91,7 +91,7 @@ class _LoginPageState extends State<LoginPage> {
       );
     }
 
-    _buildPasswordTextField() {
+    Widget _buildPasswordTextField() {
       return StreamBuilder<String?>(
         stream: bloc.passwordStream,
         builder: (context, snapshot) {
@@ -131,7 +131,7 @@ class _LoginPageState extends State<LoginPage> {
       );
     }
 
-    _buildSignUpBtn() {
+    Widget _buildSignUpBtn() {
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

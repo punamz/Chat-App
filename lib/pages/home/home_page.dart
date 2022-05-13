@@ -116,7 +116,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    _buildSearchUserList() {
+    Widget _buildSearchUserList() {
       return StreamBuilder<List<UserInfo>>(
         stream: bloc.findUserStream(_textSearch),
         builder: (context, snapshot) {
@@ -144,7 +144,7 @@ class _HomePageState extends State<HomePage> {
       );
     }
 
-    _buildChatList() {
+    Widget _buildChatList() {
       return StreamBuilder<QuerySnapshot>(
         stream: bloc.getChatStream(),
         builder: (context, snapshot) {

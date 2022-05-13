@@ -190,7 +190,7 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  _scrollListener() {
+  void _scrollListener() {
     if (messageListScrollController.offset >=
             messageListScrollController.position.maxScrollExtent &&
         !messageListScrollController.position.outOfRange) {
@@ -221,7 +221,7 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    _buildMessageItem(Message message) {
+    Widget _buildMessageItem(Message message) {
       bool isMe = message.sendBy == currentUser!.uid;
 
       return Stack(
@@ -272,7 +272,7 @@ class _ChatPageState extends State<ChatPage> {
       );
     }
 
-    _buildMessageList() {
+    Widget _buildMessageList() {
       return Flexible(
         child: StreamBuilder<QuerySnapshot>(
           stream: bloc.getMessageStream(chatId, _limit),
@@ -303,7 +303,7 @@ class _ChatPageState extends State<ChatPage> {
       );
     }
 
-    _buildInput() {
+    Widget _buildInput() {
       return Container(
         height: 50.h,
         decoration: const BoxDecoration(
@@ -345,7 +345,7 @@ class _ChatPageState extends State<ChatPage> {
       );
     }
 
-    _buildSendFileStatus(UploadTask task) => StreamBuilder<TaskSnapshot>(
+    Widget _buildSendFileStatus(UploadTask task) => StreamBuilder<TaskSnapshot>(
           stream: task.snapshotEvents,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
@@ -366,7 +366,7 @@ class _ChatPageState extends State<ChatPage> {
           },
         );
 
-    _buildDownloadStatus() => StreamBuilder<double>(
+    Widget _buildDownloadStatus() => StreamBuilder<double>(
           stream: bloc.downloadStream,
           builder: (context, snapshot) {
             if (snapshot.hasData) {

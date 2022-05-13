@@ -1,6 +1,5 @@
+import 'package:chat_app/constants/colors.dart';
 import 'package:flutter/material.dart';
-
-import 'colors.dart';
 
 final ThemeData lightTheme = ThemeData(
   primarySwatch: Colors.blue,

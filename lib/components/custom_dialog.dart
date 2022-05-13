@@ -1,7 +1,6 @@
+import 'package:chat_app/components/custom_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
-import 'custom_text.dart';
 
 Future<bool?> customDialog(
     {required BuildContext context,

@@ -127,12 +127,12 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    _buildCameraOverlay() => Icon(
+    Widget _buildCameraOverlay() => Icon(
           Icons.camera_alt_outlined,
           size: 40,
           color: AppColor.primary.withOpacity(0.4),
         );
-    _buildUploadStatus(UploadTask uploadTask) {
+    Widget _buildUploadStatus(UploadTask uploadTask) {
       return StreamBuilder<TaskSnapshot>(
         stream: uploadTask.snapshotEvents,
         builder: (context, snapshot) {
@@ -150,7 +150,7 @@ class _ProfilePageState extends State<ProfilePage> {
       );
     }
 
-    _buildAvatar() {
+    Widget _buildAvatar() {
       return CupertinoButton(
         onPressed: isUploadNewAvatar ? null : onPressChangeImage,
         child: SizedBox(
@@ -174,7 +174,7 @@ class _ProfilePageState extends State<ProfilePage> {
       );
     }
 
-    _buildNameEditing() {
+    Widget _buildNameEditing() {
       return TextField(
         controller: _nameController,
         decoration: const InputDecoration(
@@ -184,7 +184,7 @@ class _ProfilePageState extends State<ProfilePage> {
       );
     }
 
-    _buildChangeNameButton() {
+    Widget _buildChangeNameButton() {
       bool isTrue = currentUser.displayName != _nameController.text &&
           _nameController.text.trim().isNotEmpty;
       return SizedBox(
