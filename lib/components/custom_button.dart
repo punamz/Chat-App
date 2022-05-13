@@ -20,7 +20,6 @@ class CustomButton extends StatelessWidget {
   Widget build(BuildContext context) {
     // TODO: implement build
     return ElevatedButton(
-      child: child,
       style: ElevatedButton.styleFrom(
         primary: color,
         onPrimary: Colors.black,
@@ -31,6 +30,7 @@ class CustomButton extends StatelessWidget {
         ),
       ),
       onPressed: onPressed,
+      child: child,
     );
   }
 }

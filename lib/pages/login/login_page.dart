@@ -16,7 +16,7 @@ class LoginPage extends StatefulWidget {
   final AuthBase auth;
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
@@ -118,15 +118,15 @@ class _LoginPageState extends State<LoginPage> {
         width: 1.sw,
         height: 45.h,
         child: CustomButton(
+          color: AppColor.white,
+          borderRadius: 25.r,
+          onPressed: _signInWithEmail,
           child: CustomText(
             text: 'LOGIN',
             textSize: 18.sp,
             textColor: AppColor.primary,
             fontWeight: FontWeight.bold,
           ),
-          color: AppColor.white,
-          borderRadius: 25.r,
-          onPressed: _signInWithEmail,
         ),
       );
     }
@@ -141,13 +141,13 @@ class _LoginPageState extends State<LoginPage> {
             textColor: AppColor.white,
           ),
           GestureDetector(
+            onTap: _signUp,
             child: CustomText(
               text: " Sign Up",
               textSize: 16.sp,
               fontWeight: FontWeight.bold,
               textColor: AppColor.white,
             ),
-            onTap: _signUp,
           ),
         ],
       );

@@ -15,7 +15,7 @@ class SignUpPage extends StatefulWidget {
   final AuthBase auth;
 
   @override
-  _SignUpPageState createState() => _SignUpPageState();
+  State<SignUpPage> createState() => _SignUpPageState();
 }
 
 class _SignUpPageState extends State<SignUpPage> {
@@ -31,7 +31,7 @@ class _SignUpPageState extends State<SignUpPage> {
         _emailController.text,
         _passwordController.text,
       );
-      if (isComplete) Navigator.of(context).pop();
+      if (isComplete && mounted) Navigator.of(context).pop();
     } on FirebaseException catch (e) {
       Fluttertoast.showToast(msg: e.message.toString());
     }
@@ -124,15 +124,15 @@ class _SignUpPageState extends State<SignUpPage> {
         width: 1.sw,
         height: 45.h,
         child: CustomButton(
+          color: Colors.white,
+          borderRadius: 30.r,
+          onPressed: _createUserWithEmailAndPassword,
           child: CustomText(
             text: 'SIGN UP',
             textSize: 18.sp,
             textColor: AppColor.primary,
             fontWeight: FontWeight.bold,
           ),
-          color: Colors.white,
-          borderRadius: 30.r,
-          onPressed: _createUserWithEmailAndPassword,
         ),
       );
     }

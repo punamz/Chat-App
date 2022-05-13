@@ -7,7 +7,7 @@ class VideoPlayer extends StatefulWidget {
   final String videoUrl;
 
   @override
-  _VideoPlayerState createState() => _VideoPlayerState();
+  State<VideoPlayer> createState() => _VideoPlayerState();
 }
 
 class _VideoPlayerState extends State<VideoPlayer> {

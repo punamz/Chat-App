@@ -34,7 +34,7 @@ class HomePage extends StatefulWidget {
   late Function({required UserInfo userInfo}) goPage;
 
   @override
-  _HomePageState createState() => _HomePageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
@@ -54,7 +54,7 @@ class _HomePageState extends State<HomePage> {
     /// handle if initMsg not null
     /// => navigate to chat page
     if (initMsg != null) {
-      SchedulerBinding.instance?.addPostFrameCallback((_) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
         final json = initMsg!.data;
         final userInfo =
             UserInfo.fromJson(jsonDecode(json['arguments'])['userInfo']);

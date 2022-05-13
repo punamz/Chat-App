@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:chat_app/constants/colors.dart';
 import 'package:chat_app/constants/dimens.dart';
 import 'package:chat_app/utils/get_color.dart';
