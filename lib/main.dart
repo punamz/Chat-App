@@ -1,15 +1,15 @@
+import 'dart:async';
+
 import 'package:chat_app/constants/app_theme.dart';
 import 'package:chat_app/constants/strings.dart';
 import 'package:chat_app/pages/landing_page.dart';
 import 'package:chat_app/services/auth.dart';
 import 'package:chat_app/services/notification.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-/// dummy data for git commit
-
 
 RemoteMessage? initMsg;
 
@@ -18,11 +18,16 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  initMsg = await FirebaseMessaging.instance.getInitialMessage();
-  runApp(MyApp());
+  runZonedGuarded<Future<void>>(() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp();
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    initMsg = await FirebaseMessaging.instance.getInitialMessage();
+    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+    runApp(MyApp());
+  },
+      (error, stack) =>
+          FirebaseCrashlytics.instance.recordError(error, stack, fatal: true));
 }
 
 class MyApp extends StatelessWidget {

@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "657505869729-s584l2taaohtot05qs34883h4a0n25mh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.punam.chat_app",
+            "certificate_hash": "4fbb19e1a2e9f5c7f251a57545ef639018f0fd18"
+          }
+        },
+        {
           "client_id": "657505869729-5qffqb1f8vggu047v894cmviag1oal4k.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,6 +37,13 @@
             {
               "client_id": "657505869729-5qffqb1f8vggu047v894cmviag1oal4k.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "657505869729-10ovk46v7p8ue5jq16s5skg6vh963cru.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.punam.chatApp"
+              }
             }
           ]
         }
